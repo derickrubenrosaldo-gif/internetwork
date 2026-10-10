@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: internetwork
+      POSTGRES_USER: internetwork
+      POSTGRES_PASSWORD: internetwork
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U internetwork"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_site &&
+             gunicorn config.wsgi --bind 0.0.0.0:8000 --workers 3"
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      SECRET_KEY: cambiar-por-una-clave-segura-y-larga
+      DEBUG: "False"
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DATABASE_URL: postgres://internetwork:internetwork@db:5432/internetwork
+      CONTACT_EMAIL: contacto@tudominio.com
+      # WHATSAPP_NUMBER: 5219511234567
+      # EMAIL_HOST: smcp.tudominio.com
+      # EMAIL_HOST_USER: usuario
+      # EMAIL_HOST_PASSWORD: clave
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

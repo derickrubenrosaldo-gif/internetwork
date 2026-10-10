@@ -1,0 +1,58 @@
+<!-- CONTACTO: formulario con validación en servidor, honeypot y rate limit -->
+<section class="contact" id="contacto" aria-label="Contacto">
+  <div class="wrap contact-grid">
+    <div class="contact-copy">
+      <div class="eyebrow reveal">Hablemos</div>
+      <h2 class="reveal d1">Conectemos tu <span class="grad">siguiente paso.</span></h2>
+      <p class="reveal d2">Cuéntanos qué necesitas y te orientamos sobre el servicio más adecuado.</p>
+      <div class="info reveal d3">
+        {% if config.email %}<div>✉ {{ config.email }}</div>{% endif %}
+        {% if config.phone %}<div>☎ {{ config.phone }}</div>{% endif %}
+        {% if config.whatsapp %}<div>💬 WhatsApp disponible</div>{% endif %}
+        {% if config.address %}<div>⌖ {{ config.address }}</div>{% endif %}
+        {% if config.zones_list %}<div>⌖ Cobertura: {{ config.zones_list|join:", " }}</div>{% endif %}
+      </div>
+    </div>
+    <form id="quoteForm" class="reveal d1" method="post" action="{% url 'core:submit_lead' %}" novalidate>
+      {% csrf_token %}
+      <div class="row">
+        <div class="f">
+          <label for="{{ form.name.id_for_label }}">Nombre *</label>
+          {{ form.name }}
+        </div>
+        <div class="f">
+          <label for="{{ form.company.id_for_label }}">Empresa</label>
+          {{ form.company }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="f">
+          <label for="{{ form.email.id_for_label }}">Correo *</label>
+          {{ form.email }}
+        </div>
+        <div class="f">
+          <label for="{{ form.phone.id_for_label }}">Teléfono</label>
+          {{ form.phone }}
+        </div>
+      </div>
+      <div class="f">
+        <label for="{{ form.service_of_interest.id_for_label }}">Servicio de interés *</label>
+        {{ form.service_of_interest }}
+      </div>
+      <div class="f">
+        <label for="{{ form.message.id_for_label }}">Cuéntanos tu proyecto</label>
+        {{ form.message }}
+      </div>
+      {# Honeypot anti-spam: invisible para personas #}
+      <div class="hp-wrap" aria-hidden="true">{{ form.honeypot }}</div>
+      <button class="btn" type="submit" id="submitBtn">Enviar solicitud</button>
+      <div class="form-note" id="formNote" role="status" aria-live="polite">
+        Al enviar recibiremos tu solicitud y te contactaremos.
+        {% if config.whatsapp %}También puedes continuar por WhatsApp.{% endif %}
+      </div>
+      <div class="form-actions" id="formActions" hidden>
+        <a class="btn ghost" id="whatsappBtn" href="#" target="_blank" rel="noopener">Continuar por WhatsApp →</a>
+      </div>
+    </form>
+  </div>
+</section>

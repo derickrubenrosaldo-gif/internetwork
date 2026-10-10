@@ -1,0 +1,7 @@
+{% load static %}<!-- TICKER INFINITO: servicios en movimiento continuo -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    {% for service in services %}<span><i>✦</i>{{ service.title }}</span>{% endfor %}
+    {% for service in services %}<span><i>✦</i>{{ service.title }}</span>{% endfor %}
+  </div>
+</div>

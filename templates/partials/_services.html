@@ -1,0 +1,28 @@
+{% load static %}<!-- BANDA HORIZONTAL: pin + scrub + snap por tarjeta -->
+<section class="hscroll" id="servicios" aria-label="Servicios">
+  <div class="h-sticky">
+    <div class="h-head">
+      <div class="eyebrow">Nuestros servicios</div>
+      <h2>Todo lo que tu operación necesita. <span class="grad">En un solo lugar.</span></h2>
+    </div>
+    <div class="track" id="track">
+      {% for service in services %}
+      <article class="card" data-tilt>
+        <span class="card-index" aria-hidden="true">{{ forloop.counter }}</span>
+        <div class="ic" aria-hidden="true">
+          {% if service.lottie_file %}
+            <div class="lottie-icon" data-lottie="{% static 'lottie/'|add:service.lottie_file %}" data-icon="{{ service.icon }}" role="img" aria-label="{{ service.title }}"></div>
+          {% else %}
+            <span>{{ service.icon }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.description }}</p>
+        </div>
+        <a href="{{ service.url }}">{{ service.link_text }} →</a>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

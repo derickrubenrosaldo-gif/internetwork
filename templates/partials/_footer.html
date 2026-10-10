@@ -1,0 +1,14 @@
+<footer>
+  <div class="watermark" aria-hidden="true">INTERNETWORK</div>
+  <div class="foot">
+    <span>© {% now "Y" %} INTERNETWORK. Todos los derechos reservados.</span>
+    <span>Conectando tu mundo.</span>
+    {% if config.socials %}
+      <span class="socials">
+        {% for social in config.socials %}
+          <a href="{{ social.url }}" target="_blank" rel="noopener">{{ social.name }}</a>
+        {% endfor %}
+      </span>
+    {% endif %}
+  </div>
+</footer>

@@ -1,0 +1,30 @@
+{% load static %}<!-- ESCENA FIJA: 4 pasos con pin + scrub (GSAP ScrollTrigger) -->
+<section class="story" id="historia" aria-label="Qué hacemos">
+  <div class="story-sticky">
+    <div class="story-bg" id="storyBg" aria-hidden="true" data-glows="rgba(8,124,240,.5)|rgba(39,196,255,.4)|rgba(20,200,150,.38)|rgba(130,90,255,.4)"></div>
+    <div class="story-grid">
+      <div class="steps" id="steps">
+        {% for step in story_steps %}
+        <div class="step" aria-hidden="{% if not forloop.first %}true{% endif %}">
+          <div class="eyebrow">{{ step.label }}</div>
+          <h2>{{ step.title }} <span class="grad">{{ step.title_highlight }}</span></h2>
+          <p>{{ step.description }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="visual" id="visuals" aria-hidden="true">
+        {% for step in story_steps %}
+        <div class="visual-item" data-index="{{ forloop.counter0 }}">
+          {% if step.visual_lottie %}
+            <div class="lottie" data-lottie="{% static 'lottie/'|add:step.visual_lottie %}" role="img" aria-label="{{ step.label }}"></div>
+          {% endif %}
+          {{ step.visual_svg|safe }}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="counter" id="counter" aria-hidden="true">
+      {% for step in story_steps %}<i></i>{% endfor %}
+    </div>
+  </div>
+</section>

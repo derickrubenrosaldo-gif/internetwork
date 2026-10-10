@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+db.sqlite3
+staticfiles/
+
+# Build del frontend (generado con npm run build)
+static/js/dist/
+static/css/dist/
+
+# Entorno y editor
+.env
+.vscode/
+.idea/
+.DS_Store
+node_modules/
+*.log

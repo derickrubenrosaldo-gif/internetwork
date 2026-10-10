@@ -1,0 +1,12 @@
+<!-- BANDA DE RESULTADOS: cifras con contadores animados -->
+<section class="stats" aria-label="Resultados">
+  <div class="wrap stats-grid">
+    {% for stat in config.stats %}
+    <div class="stat reveal">
+      <b>{{ stat.value }}</b>
+      <span>{{ stat.label }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+<div class="divider" aria-hidden="true"></div>

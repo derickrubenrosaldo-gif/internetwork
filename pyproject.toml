@@ -1,0 +1,12 @@
+[tool.ruff]
+line-length = 100
+exclude = ["static", "node_modules", ".venv", "frontend"]
+
+[tool.ruff.lint]
+# RUF012: atributos de clase mutables son la convención de Django
+# (Meta, ModelAdmin, Form.Meta) — no un error en este proyecto.
+ignore = ["RUF012"]
+
+[tool.ruff.lint.per-file-ignores]
+"core/migrations/**" = ["ALL"]
+"manage.py" = ["EXE001"]

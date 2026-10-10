@@ -1,0 +1,9 @@
+node_modules/
+.venv/
+.git
+.env
+db.sqlite3
+staticfiles/
+static/js/dist/
+static/css/dist/
+*.pyc
