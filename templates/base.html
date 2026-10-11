@@ -44,20 +44,31 @@
   <div id="cursor" aria-hidden="true"></div>
   <div id="cursor-ring" aria-hidden="true"></div>
 
-  <header>
+  <header class="site-header">
     <div class="nav">
-      <a class="brand" href="#inicio" aria-label="INTERNETWORK - Inicio"><span class="dot" aria-hidden="true"></span>INTERNETWORK</a>
-      <nav aria-label="Navegación principal">
-        <a href="#historia">Qué hacemos</a>
-        <a href="#servicios">Servicios</a>
-        <a href="#planes">Planes</a>
-        <a href="#rural">Zonas rurales</a>
-        <a href="#nosotros">Nosotros</a>
+      <a class="brand" href="{% url 'core:home' %}#inicio" aria-label="INTERNETWORK - Inicio"><span class="dot" aria-hidden="true"></span>INTERNETWORK</a>
+
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Abrir menú">
+        <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+      </button>
+
+      <nav id="site-nav" class="site-nav" aria-label="Navegación principal">
+        <a href="{% url 'core:home' %}#historia">Qué hacemos</a>
+        <a href="{% url 'core:home' %}#servicios">Servicios</a>
+        <a href="{% url 'core:home' %}#planes">Planes</a>
+        <a href="{% url 'core:home' %}#rural">Zonas rurales</a>
+        <a href="{% url 'core:home' %}#nosotros">Nosotros</a>
+        <div class="nav-drop">
+          <button type="button" class="nav-drop-toggle" aria-expanded="false" aria-controls="nav-drop-menu">
+            Área de clientes<span class="caret" aria-hidden="true"></span>
+          </button>
+          <div class="nav-drop-menu" id="nav-drop-menu" hidden>
+            <a href="{% url 'core:payments' %}">Pagos</a>
+            <a href="{% url 'core:client_panel' %}">Mi panel</a>
+          </div>
+        </div>
+        <a class="btn" href="{% url 'core:home' %}#contacto">Contratar</a>
       </nav>
-      <a class="btn ghost" href="{% url 'core:payments' %}">Pagos</a>
-      <a class="btn ghost access" href="{% url 'core:client_panel' %}">Panel clientes</a>
-      <a class="btn ghost access" href="{% url 'admin:index' %}">Admin</a>
-      <a class="btn" href="#contacto">Contacto</a>
     </div>
     <div class="progress" id="progress" aria-hidden="true"></div>
   </header>

@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
+from django.utils.text import slugify
 
 
 class SiteConfig(models.Model):
@@ -157,6 +158,13 @@ class Plan(models.Model):
     """Plan de internet residencial mostrado en la sección 'Planes'."""
 
     name = models.CharField("Nombre", max_length=80)
+    slug = models.SlugField(
+        "URL corta",
+        max_length=90,
+        unique=True,
+        blank=True,
+        help_text="Se genera del nombre. Se usa en ?plan=… para preseleccionar el plan.",
+    )
     speed = models.CharField("Velocidad", max_length=60, blank=True, default="")
     price = models.CharField(
         "Precio (texto)", max_length=40, blank=True, default="", help_text="Ej: $499 al mes."
@@ -198,6 +206,17 @@ class Plan(models.Model):
     def has_price(self):
         """True solo si el plan tiene un precio real definido."""
         return self.price_amount is not None
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = slugify(self.name) or "plan"
+            slug = base
+            index = 2
+            while Plan.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base}-{index}"
+                index += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name} — {self.speed}" if self.speed else self.name

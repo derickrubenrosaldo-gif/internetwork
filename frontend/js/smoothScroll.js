@@ -17,15 +17,20 @@ export function initSmoothScroll(reduced) {
   });
   gsap.ticker.lagSmoothing(0);
 
-  // Anclas del menú con scroll suave
-  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+  // Anclas del menú con scroll suave. Se aceptan tanto `#seccion` como
+  // `/#seccion` (la forma portátil que funciona también fuera del home).
+  document.querySelectorAll('a[href*="#"]').forEach((link) => {
     link.addEventListener("click", (event) => {
-      const id = link.getAttribute("href");
-      if (!id || id === "#") return;
-      const target = document.querySelector(id);
+      const href = link.getAttribute("href") || "";
+      const [path, hash] = href.split("#");
+      if (!hash) return;
+      // Solo se intercepta si apunta a la página actual.
+      if (path && path !== window.location.pathname) return;
+      const target = document.getElementById(hash);
       if (!target) return;
       event.preventDefault();
       lenis.scrollTo(target, { offset: -56, duration: 1.2 });
+      history.replaceState(null, "", `#${hash}`);
     });
   });
 

@@ -13,6 +13,7 @@ import { initContactForm } from "./contactForm.js";
 import { initPaymentForm } from "./paymentForm.js";
 import { initHero3D } from "./hero3d.js";
 import { initStats } from "./stats.js";
+import { initNav } from "./nav.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -62,6 +63,7 @@ if (header) {
 }
 
 /* Módulos */
+initNav();
 const lenis = initSmoothScroll(REDUCED);
 initTextReveal(REDUCED);
 initStory(REDUCED);

@@ -1,8 +1,42 @@
-<footer>
+{% load static %}
+<footer class="site-footer">
   <div class="watermark" aria-hidden="true">INTERNETWORK</div>
+  <div class="footer-cols">
+    <div class="footer-col footer-brand">
+      <span class="brand-line"><span class="dot" aria-hidden="true"></span>INTERNETWORK</span>
+      <p>{{ config.hero_subtitle|default:"Internet dedicado, soluciones IT y conectividad rural." }}</p>
+    </div>
+
+    <nav class="footer-col" aria-label="Servicios">
+      <h2>Servicios</h2>
+      {% for service in services %}<a href="{% url 'core:home' %}{{ service.url }}">{{ service.title }}</a>{% endfor %}
+    </nav>
+
+    <nav class="footer-col" aria-label="Empresa">
+      <h2>Empresa</h2>
+      <a href="{% url 'core:home' %}#historia">Qué hacemos</a>
+      <a href="{% url 'core:home' %}#nosotros">Nosotros</a>
+      <a href="{% url 'core:payments' %}">Pagos</a>
+      <a href="{% url 'core:client_panel' %}">Área de clientes</a>
+    </nav>
+
+    <nav class="footer-col" aria-label="Legal">
+      <h2>Legal</h2>
+      {% for page in legal_pages %}<a href="{{ page.get_absolute_url }}">{{ page.title }}</a>{% endfor %}
+    </nav>
+
+    <div class="footer-col" aria-label="Contacto">
+      <h2>Contacto</h2>
+      {% if config.email %}<a href="mailto:{{ config.email }}">{{ config.email }}</a>{% endif %}
+      {% if config.phone %}<a href="tel:{{ config.phone }}">{{ config.phone }}</a>{% endif %}
+      {% if config.whatsapp %}<a href="{{ config.whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
+      {% if config.address %}<span>{{ config.address }}</span>{% endif %}
+      {% if config.zones_list %}<span>Cobertura: {{ config.zones_list|join:", " }}</span>{% endif %}
+    </div>
+  </div>
+
   <div class="foot">
     <span>© {% now "Y" %} INTERNETWORK. Todos los derechos reservados.</span>
-    <span>Conectando tu mundo.</span>
     {% if config.socials %}
       <span class="socials">
         {% for social in config.socials %}
@@ -11,9 +45,4 @@
       </span>
     {% endif %}
   </div>
-  <nav class="legal-links" aria-label="Enlaces legales">
-    {% for page in legal_pages %}
-      <a href="{{ page.get_absolute_url }}">{{ page.title }}</a>
-    {% endfor %}
-  </nav>
 </footer>

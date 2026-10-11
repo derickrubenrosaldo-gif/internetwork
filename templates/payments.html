@@ -25,7 +25,7 @@
         {% endfor %}
       </div>
 
-      <form id="payForm" class="reveal d1" method="post" action="{% url 'core:submit_payment' %}" novalidate>
+      <form id="payForm" class="site-form reveal d1" method="post" action="{% url 'core:submit_payment' %}" novalidate>
         {% csrf_token %}
         <div class="row">
           <div class="f">

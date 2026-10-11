@@ -45,14 +45,24 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         config = SiteConfig.get_solo()
+
+        # ?plan=<slug> preselecciona el plan en el formulario de contacto.
+        slug = self.request.GET.get("plan", "").strip()
+        selected_plan = Plan.objects.filter(slug=slug, active=True).first() if slug else None
+        initial = {}
+        if selected_plan:
+            speed = f" ({selected_plan.speed})" if selected_plan.speed else ""
+            initial["message"] = f"Me interesa el plan {selected_plan.name}{speed}."
+
         context.update(
             {
                 "config": config,
                 "services": Service.objects.filter(active=True),
-                "plans": Plan.objects.filter(active=True),
+                "plans": Plan.objects.filter(active=True, price_amount__isnull=False),
+                "selected_plan": selected_plan,
                 "story_steps": StoryStep.objects.all(),
                 "differentiators": Differentiator.objects.all(),
-                "form": LeadForm(),
+                "form": LeadForm(initial=initial),
                 "title": "INTERNETWORK | Conectando tu mundo",
                 "meta_description": (
                     "INTERNETWORK: internet dedicado, conectividad en zonas rurales, "

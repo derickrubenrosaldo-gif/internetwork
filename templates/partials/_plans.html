@@ -19,9 +19,9 @@
           {% for feature in plan.features %}<li>{{ feature }}</li>{% endfor %}
         </ul>
         {% if plan.is_popular %}
-          <a class="btn" href="{{ plan.url }}">Elegir {{ plan.name }}</a>
+          <a class="btn" href="{% if plan.url and plan.url != '#contacto' %}{{ plan.url }}{% else %}?plan={{ plan.slug }}#contacto{% endif %}">Elegir {{ plan.name }}</a>
         {% else %}
-          <a class="btn btn-light" href="{{ plan.url }}">Elegir {{ plan.name }}</a>
+          <a class="btn btn-light" href="{% if plan.url and plan.url != '#contacto' %}{{ plan.url }}{% else %}?plan={{ plan.slug }}#contacto{% endif %}">Elegir {{ plan.name }}</a>
         {% endif %}
       </article>
       {% endfor %}
