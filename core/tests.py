@@ -92,6 +92,7 @@ class PlansSectionTests(BaseTestCase):
             name="Esencial",
             speed="100 Mbps",
             price="$299",
+            price_amount=Decimal("299.00"),
             period="/mes",
             tagline="Para tu casa.",
             features=["WiFi incluido", "Instalación gratis"],
@@ -115,7 +116,13 @@ class PlansSectionTests(BaseTestCase):
         self.assertNotContains(response, "Oculto")
 
     def test_popular_plan_shows_badge(self):
-        Plan.objects.create(name="Familiar", speed="300 Mbps", is_popular=True)
+        Plan.objects.create(
+            name="Familiar",
+            speed="300 Mbps",
+            price="499",
+            price_amount=Decimal("499.00"),
+            is_popular=True,
+        )
         response = self.client.get(reverse("core:home"))
         self.assertContains(response, "Más popular")
 
@@ -617,16 +624,21 @@ class SeedTests(BaseTestCase):
         titles = list(Service.objects.values_list("title", flat=True))
         self.assertIn("Internet dedicado", titles)
 
-    def test_default_seed_has_no_invented_data(self):
+    def test_default_seed_loads_real_data_without_inventing(self):
         call_command("seed_site", "--force", stdout=StringIO())
         config = SiteConfig.get_solo()
-        self.assertEqual(config.payment_instructions, "")
+        # Datos reales del negocio.
+        self.assertEqual(config.whatsapp, "9211200027")
+        self.assertIn("Minatitlán", config.address)
+        self.assertEqual(Plan.objects.count(), 3)
+        prices = sorted(str(p.price_amount) for p in Plan.objects.all())
+        self.assertEqual(prices, ["380.00", "480.00", "600.00"])
+        # Nada inventado: sin cifras, sin "Más popular" ni características.
         self.assertEqual(config.stats, [])
-        self.assertEqual(config.coverage_zones, "")
-        self.assertEqual(Plan.objects.count(), 0)
+        self.assertFalse(Plan.objects.filter(is_popular=True).exists())
+        self.assertFalse(any(p.features for p in Plan.objects.all()))
 
     def test_demo_seed_marks_examples(self):
         call_command("seed_site", "--force", "--demo", stdout=StringIO())
-        self.assertGreater(Plan.objects.count(), 0)
         config = SiteConfig.get_solo()
-        self.assertIn("EJEMPLO", config.payment_instructions)
+        self.assertTrue(config.stats)  # cifras de ejemplo, solo con --demo

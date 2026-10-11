@@ -25,13 +25,13 @@ from core.models import (
     StoryStep,
 )
 
-# --- Configuración base (sin datos inventados) ------------------------------
+# --- Configuración base (datos reales del negocio) ---------------------------
 BASE_SITE_CONFIG = {
     "email": "",
-    "phone": "",
-    "whatsapp": "",
-    "address": "",
-    "coverage_zones": "",
+    "phone": "9211200027",
+    "whatsapp": "9211200027",
+    "address": "Minatitlán, Veracruz",
+    "coverage_zones": "Sur de Veracruz",
     "hero_eyebrow": "Conectando tu mundo",
     "hero_title": "Internet sin",
     "hero_title_highlight": "límites.",
@@ -79,23 +79,23 @@ BASE_SITE_CONFIG = {
             "text": "Atención de ingeniería con seguimiento de tu caso.",
         },
     ],
-    "payment_instructions": "",
+    # Cuenta real para transferencias. Falta confirmar el banco y el tipo de
+    # dato (CLABE de 18 dígitos o número de cuenta) para etiquetarlo bien.
+    "payment_instructions": (
+        "Cuenta: 64699040406103622. En tu transferencia usa la referencia que "
+        "te asignamos al registrar el pago."
+    ),
 }
 
 # --- Contenido de EJEMPLO (solo con --demo) ---------------------------------
+# Solo lo que sigue sin dato real: las cifras de la banda de resultados.
 DEMO_SITE_CONFIG = {
-    "coverage_zones": "Ciudad de México, Guadalajara, Monterrey, Puebla",
     "stats": [
         {"value": "+500", "label": "Negocios conectados"},
         {"value": "99.9%", "label": "Estabilidad de enlaces"},
         {"value": "24/7", "label": "Soporte técnico"},
         {"value": "+50", "label": "Zonas rurales"},
     ],
-    "payment_instructions": (
-        "EJEMPLO — no usar en producción. Banco Ejemplo, Cuenta: 0123456789, "
-        "CLABE interbancaria: 012180001234567890. Usa la referencia que te "
-        "asignamos al registrar el pago."
-    ),
 }
 
 DEMO_PLANS = [
@@ -122,6 +122,48 @@ DEMO_PLANS = [
         "is_popular": True,
         "url": "#contacto",
         "order": 1,
+    },
+]
+
+# --- Planes reales ------------------------------------------------------------
+# Nombre, precio y velocidad son los datos del negocio. Sin "Más popular" (no es
+# un dato real) y sin características inventadas: se editan desde el admin.
+PLANS = [
+    {
+        "name": "15 Megas",
+        "speed": "15 Mbps",
+        "price": "$380",
+        "price_amount": "380.00",
+        "period": "/mes",
+        "tagline": "",
+        "features": [],
+        "is_popular": False,
+        "url": "#contacto",
+        "order": 0,
+    },
+    {
+        "name": "30 Megas",
+        "speed": "30 Mbps",
+        "price": "$480",
+        "price_amount": "480.00",
+        "period": "/mes",
+        "tagline": "",
+        "features": [],
+        "is_popular": False,
+        "url": "#contacto",
+        "order": 1,
+    },
+    {
+        "name": "100 Megas",
+        "speed": "100 Mbps",
+        "price": "$600",
+        "price_amount": "600.00",
+        "period": "/mes",
+        "tagline": "",
+        "features": [],
+        "is_popular": False,
+        "url": "#contacto",
+        "order": 2,
     },
 ]
 
@@ -259,11 +301,11 @@ LEGAL_PAGES = [
         "slug": "aviso-de-privacidad",
         "order": 0,
         "content": """BORRADOR PARA REVISIÓN DE UN ABOGADO. En INTERNETWORK respetamos tu privacidad. Este aviso describe cómo tratamos tus datos personales cuando usas el sitio, nos escribes o registras un pago.
-Responsable: INTERNETWORK. El domicilio y los datos de contacto del responsable deben completarse antes de publicar este aviso.
+Responsable: INTERNETWORK, con domicilio en Minatitlán, Veracruz, México. Teléfono y WhatsApp: 9211200027. Falta completar la dirección exacta (calle y número) antes de publicar.
 Datos que tratamos: nombre, correo, teléfono, empresa y mensaje (contacto); nombre, correo, teléfono, servicio y monto (pagos); y los pagos asociados a tu correo cuando consultas el panel de clientes.
 Finalidades primarias: atender tu solicitud, registrar y confirmar tu pago, dar seguimiento a la relación comercial y cumplir obligaciones legales.
 Finalidades secundarias: enviarte información sobre nuestros servicios. Puedes oponerte sin afectar la relación principal.
-Derechos ARCO: puedes acceder, rectificar, cancelar u oponerte al tratamiento de tus datos, así como revocar tu consentimiento, escribiendo al correo de contacto.
+Derechos ARCO: puedes acceder, rectificar, cancelar u oponerte al tratamiento de tus datos, así como revocar tu consentimiento, escribiendo al teléfono o WhatsApp de contacto.
 Transferencias: no transferimos tus datos a terceros salvo a los proveedores necesarios para operar el sitio y procesar pagos, o cuando la ley lo exija.
 Conservación: conservamos tus datos mientras exista la relación comercial y el tiempo necesario para cumplir obligaciones legales.
 Cambios: este aviso puede actualizarse. Publicaremos la versión vigente en este sitio.""",
@@ -349,6 +391,7 @@ class Command(BaseCommand):
         self._load(LegalPage, LEGAL_PAGES, "slug", force)
         self._load(StoryStep, STORY_STEPS, "label", force)
         self._load(Differentiator, DIFFERENTIATORS, "title", force)
+        self._load(Plan, PLANS, "name", force)
         if demo:
             self._load(Plan, DEMO_PLANS, "name", force)
 
