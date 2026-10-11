@@ -44,6 +44,14 @@
       </div>
       {# Honeypot anti-spam: invisible para personas #}
       <div class="hp-wrap" aria-hidden="true">{{ form.honeypot }}</div>
+      <div class="privacy">
+        {{ form.privacy }}
+        <label for="{{ form.privacy.id_for_label }}">
+          He leído y acepto
+          {% if privacy_url %}<a href="{{ privacy_url }}" target="_blank" rel="noopener">el aviso de privacidad</a>{% else %}el aviso de privacidad{% endif %}
+          <span class="privacy-version">{{ privacy_notice_version }}</span>
+        </label>
+      </div>
       <button class="btn" type="submit" id="submitBtn">Enviar solicitud</button>
       <div class="form-note" id="formNote" role="status" aria-live="polite">
         Al enviar recibiremos tu solicitud y te contactaremos.

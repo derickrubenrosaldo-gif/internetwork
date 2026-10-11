@@ -1,5 +1,6 @@
 """Modelos del sitio INTERNETWORK — todo editable desde el admin."""
 
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 
@@ -109,6 +110,13 @@ class SiteConfig(models.Model):
     def zones_list(self):
         return [z.strip() for z in self.coverage_zones.split(",") if z.strip()]
 
+    @property
+    def whatsapp_url(self):
+        """Enlace de WhatsApp (vacío si no hay número configurado)."""
+        if not self.whatsapp:
+            return ""
+        return f"https://wa.me/{self.whatsapp}"
+
     def __str__(self):
         return "Configuración del sitio"
 
@@ -149,8 +157,21 @@ class Plan(models.Model):
     """Plan de internet residencial mostrado en la sección 'Planes'."""
 
     name = models.CharField("Nombre", max_length=80)
-    speed = models.CharField("Velocidad", max_length=60, default="100 Mbps")
-    price = models.CharField("Precio (texto)", max_length=40, default="$299")
+    speed = models.CharField("Velocidad", max_length=60, blank=True, default="")
+    price = models.CharField(
+        "Precio (texto)", max_length=40, blank=True, default="", help_text="Ej: $499 al mes."
+    )
+    price_amount = models.DecimalField(
+        "Precio (monto)",
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text=(
+            "Solo si es un precio real. Si se define, el monto del pago "
+            "se toma de aquí y no del cliente."
+        ),
+    )
     period = models.CharField("Periodo", max_length=20, default="/mes")
     tagline = models.CharField("Descripción corta", max_length=200, default="")
     features = models.JSONField(
@@ -173,8 +194,13 @@ class Plan(models.Model):
         verbose_name = "Plan residencial"
         verbose_name_plural = "Planes residenciales"
 
+    @property
+    def has_price(self):
+        """True solo si el plan tiene un precio real definido."""
+        return self.price_amount is not None
+
     def __str__(self):
-        return f"{self.name} — {self.speed}"
+        return f"{self.name} — {self.speed}" if self.speed else self.name
 
 
 class StoryStep(models.Model):
@@ -276,11 +302,26 @@ class Payment(models.Model):
     amount = models.DecimalField("Monto", max_digits=10, decimal_places=2)
     method = models.CharField("Método", max_length=20, choices=METHOD_CHOICES)
     reference = models.CharField("Referencia", max_length=40, unique=True)
-    status = models.CharField(
-        "Estado", max_length=20, choices=STATUS_CHOICES, default="pending"
-    )
+    status = models.CharField("Estado", max_length=20, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField("Fecha", auto_now_add=True)
     ip_address = models.GenericIPAddressField("IP", blank=True, null=True)
+    paid_at = models.DateTimeField("Confirmado el", blank=True, null=True)
+    confirmed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name="Confirmado por",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+    provider = models.CharField(
+        "Pasarela",
+        max_length=30,
+        blank=True,
+        default="",
+        help_text="Pasarela que procesó el pago (ej: mercadopago).",
+    )
+    provider_ref = models.CharField("ID en la pasarela", max_length=120, blank=True, default="")
 
     class Meta:
         ordering = ["-created_at"]
@@ -289,6 +330,21 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"{self.reference} — {self.service} ({self.get_status_display()})"
+
+
+class UsedLoginToken(models.Model):
+    """Nonce de un enlace mágico ya usado (garantiza un solo uso)."""
+
+    nonce = models.CharField("Nonce", max_length=64, unique=True)
+    email = models.EmailField("Correo", blank=True, default="")
+    created_at = models.DateTimeField("Creado", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Token de acceso usado"
+        verbose_name_plural = "Tokens de acceso usados"
+
+    def __str__(self):
+        return self.nonce
 
 
 class Lead(models.Model):

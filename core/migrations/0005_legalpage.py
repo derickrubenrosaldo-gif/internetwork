@@ -4,27 +4,40 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0004_siteconfig_dedicated_description_and_more'),
+        ("core", "0004_siteconfig_dedicated_description_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LegalPage',
+            name="LegalPage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=120, verbose_name='Título')),
-                ('slug', models.SlugField(max_length=120, unique=True, verbose_name='URL')),
-                ('content', models.TextField(help_text='Texto plano: cada línea se renderiza como un párrafo.', verbose_name='Contenido')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Última actualización')),
-                ('order', models.PositiveIntegerField(default=0, verbose_name='Orden')),
-                ('active', models.BooleanField(default=True, verbose_name='Activo')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("title", models.CharField(max_length=120, verbose_name="Título")),
+                ("slug", models.SlugField(max_length=120, unique=True, verbose_name="URL")),
+                (
+                    "content",
+                    models.TextField(
+                        help_text="Texto plano: cada línea se renderiza como un párrafo.",
+                        verbose_name="Contenido",
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Última actualización"),
+                ),
+                ("order", models.PositiveIntegerField(default=0, verbose_name="Orden")),
+                ("active", models.BooleanField(default=True, verbose_name="Activo")),
             ],
             options={
-                'verbose_name': 'Página legal',
-                'verbose_name_plural': 'Páginas legales',
-                'ordering': ['order', 'id'],
+                "verbose_name": "Página legal",
+                "verbose_name_plural": "Páginas legales",
+                "ordering": ["order", "id"],
             },
         ),
     ]

@@ -1,72 +1,72 @@
 {% extends "base.html" %}
-{% load static %}
 
 {% block content %}
-<main>
-  <section class="panel-home">
-    <header class="panel-head">
-      <div>
-        <p class="panel-eyebrow">Panel de clientes</p>
-        <h1 class="panel-title">Mi cuenta</h1>
-        <p class="panel-sub">Pagos asociados a <b>{{ email }}</b></p>
-      </div>
-      <a class="btn ghost" href="{% url 'core:client_logout' %}">Cerrar sesión</a>
-    </header>
+<section class="panel-home">
+  <header class="panel-head">
+    <div>
+      <p class="panel-eyebrow">Panel de clientes</p>
+      <h1 class="panel-title">Mi cuenta</h1>
+      <p class="panel-sub">Pagos asociados a <b>{{ email }}</b></p>
+    </div>
+    <form method="post" action="{% url 'core:panel_logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn ghost">Cerrar sesión</button>
+    </form>
+  </header>
 
-    <div class="panel-stats">
-      <div class="panel-stat">
-        <b>${{ total_paid|floatformat:2 }}</b>
-        <span>Pagos confirmados</span>
-      </div>
-      <div class="panel-stat warn">
-        <b>${{ total_pending|floatformat:2 }}</b>
-        <span>Pagos pendientes</span>
-      </div>
-      <div class="panel-stat">
-        <b>{{ payments|length }}</b>
-        <span>Total de pagos</span>
-      </div>
+  <div class="panel-stats">
+    <div class="panel-stat">
+      <b>${{ total_paid|floatformat:2 }}</b>
+      <span>Pagos confirmados</span>
     </div>
+    <div class="panel-stat warn">
+      <b>${{ total_pending|floatformat:2 }}</b>
+      <span>Pagos pendientes</span>
+    </div>
+    <div class="panel-stat">
+      <b>{{ payments|length }}</b>
+      <span>Total de pagos</span>
+    </div>
+  </div>
 
-    {% if payments %}
-    <div class="panel-table-wrap">
-      <table class="panel-table">
-        <thead>
-          <tr>
-            <th>Referencia</th>
-            <th>Servicio o plan</th>
-            <th>Método</th>
-            <th>Fecha</th>
-            <th>Monto</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for payment in payments %}
-          <tr>
-            <td class="num">{{ payment.reference }}</td>
-            <td>{{ payment.service }}</td>
-            <td>{{ payment.get_method_display }}</td>
-            <td>{{ payment.created_at|date:"d/m/Y" }}</td>
-            <td class="num">${{ payment.amount|floatformat:2 }}</td>
-            <td>
-              <span class="badge {% if payment.status == 'paid' %}badge-paid{% else %}badge-pending{% endif %}">
-                {{ payment.get_status_display }}
-              </span>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <p class="panel-note">Muestra solo pagos registrados con este correo. ¿No ves tu pago? Verifica que hayas usado el mismo correo al pagar.</p>
-    {% else %}
-    <div class="panel-empty">
-      <h2>Aún no tienes pagos registrados</h2>
-      <p>Cuando pagues un servicio o plan, aparecerá aquí con su referencia y estado.</p>
-      <a class="btn primary" href="{% url 'core:payments' %}">Pagar un servicio</a>
-    </div>
-    {% endif %}
-  </section>
-</main>
+  {% if payments %}
+  <div class="panel-table-wrap">
+    <table class="panel-table">
+      <thead>
+        <tr>
+          <th>Referencia</th>
+          <th>Servicio o plan</th>
+          <th>Método</th>
+          <th>Fecha</th>
+          <th>Monto</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for payment in payments %}
+        <tr>
+          <td class="num">{{ payment.reference }}</td>
+          <td>{{ payment.service }}</td>
+          <td>{{ payment.get_method_display }}</td>
+          <td>{{ payment.created_at|date:"d/m/Y" }}</td>
+          <td class="num">${{ payment.amount|floatformat:2 }}</td>
+          <td>
+            <span class="badge {% if payment.status == 'paid' %}badge-paid{% else %}badge-pending{% endif %}">
+              {{ payment.get_status_display }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="panel-note">Solo se muestran los pagos registrados con este correo.</p>
+  {% else %}
+  <div class="panel-empty">
+    <h2>Aún no tienes pagos registrados</h2>
+    <p>Cuando pagues un servicio o plan, aparecerá aquí con su referencia y estado.</p>
+    <a class="btn primary" href="{% url 'core:payments' %}">Generar mi referencia de pago</a>
+  </div>
+  {% endif %}
+</section>
 {% endblock %}

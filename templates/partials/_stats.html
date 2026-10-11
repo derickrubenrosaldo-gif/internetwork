@@ -1,4 +1,5 @@
-<!-- BANDA DE RESULTADOS: cifras con contadores animados -->
+<!-- BANDA DE RESULTADOS: solo con cifras reales -->
+{% if config.stats %}
 <section class="stats" aria-label="Resultados">
   <div class="wrap stats-grid">
     {% for stat in config.stats %}
@@ -10,3 +11,4 @@
   </div>
 </section>
 <div class="divider" aria-hidden="true"></div>
+{% endif %}

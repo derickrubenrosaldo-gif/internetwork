@@ -4,30 +4,45 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0003_plan'),
+        ("core", "0003_plan"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='siteconfig',
-            name='dedicated_description',
-            field=models.TextField(default='El internet dedicado te asigna una conexión privada y simétrica: toda la capacidad es para tu negocio, con respuesta garantizada y monitoreo continuo.', verbose_name='Internet dedicado · descripción'),
+            model_name="siteconfig",
+            name="dedicated_description",
+            field=models.TextField(
+                default="El internet dedicado te asigna una conexión privada y simétrica: toda la capacidad es para tu negocio, con respuesta garantizada y monitoreo continuo.",
+                verbose_name="Internet dedicado · descripción",
+            ),
         ),
         migrations.AddField(
-            model_name='siteconfig',
-            name='dedicated_features',
-            field=models.JSONField(blank=True, default=list, help_text='Lista de {"title": "...", "text": "..."}.', verbose_name='Internet dedicado · características'),
+            model_name="siteconfig",
+            name="dedicated_features",
+            field=models.JSONField(
+                blank=True,
+                default=list,
+                help_text='Lista de {"title": "...", "text": "..."}.',
+                verbose_name="Internet dedicado · características",
+            ),
         ),
         migrations.AddField(
-            model_name='siteconfig',
-            name='dedicated_title',
-            field=models.CharField(default='Ancho de banda exclusivo para tu operación.', max_length=200, verbose_name='Internet dedicado · título'),
+            model_name="siteconfig",
+            name="dedicated_title",
+            field=models.CharField(
+                default="Ancho de banda exclusivo para tu operación.",
+                max_length=200,
+                verbose_name="Internet dedicado · título",
+            ),
         ),
         migrations.AddField(
-            model_name='siteconfig',
-            name='dedicated_title_highlight',
-            field=models.CharField(default='Sin compartir.', max_length=120, verbose_name='Internet dedicado · resaltado'),
+            model_name="siteconfig",
+            name="dedicated_title_highlight",
+            field=models.CharField(
+                default="Sin compartir.",
+                max_length=120,
+                verbose_name="Internet dedicado · resaltado",
+            ),
         ),
     ]

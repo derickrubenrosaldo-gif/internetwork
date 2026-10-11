@@ -1,4 +1,17 @@
-"""Carga el contenido original de internetwork-scroll.html en la base de datos."""
+"""Carga el contenido base del sitio.
+
+Modos
+-----
+Sin opciones   Solo **crea lo que falta** (``get_or_create``): nunca
+               sobrescribe lo que hayas editado en el admin.
+``--force``    Sobrescribe el contenido existente con los valores base.
+``--demo``     Añade además contenido de **EJEMPLO** (precios, cifras,
+               cobertura y datos bancarios ficticios). No usar en producción.
+``--reset``    Elimina el contenido base y lo vuelve a crear (destructivo).
+
+Regla del proyecto: nada de datos inventados por defecto. Precios, cifras,
+cobertura y datos bancarios solo se cargan con ``--demo``.
+"""
 
 from django.core.management.base import BaseCommand
 
@@ -12,12 +25,13 @@ from core.models import (
     StoryStep,
 )
 
-SITE_CONFIG = {
-    "email": "contacto@tudominio.com",
+# --- Configuración base (sin datos inventados) ------------------------------
+BASE_SITE_CONFIG = {
+    "email": "",
     "phone": "",
     "whatsapp": "",
     "address": "",
-    "coverage_zones": "Ciudad de México, Guadalajara, Monterrey, Puebla",
+    "coverage_zones": "",
     "hero_eyebrow": "Conectando tu mundo",
     "hero_title": "Internet sin",
     "hero_title_highlight": "límites.",
@@ -35,19 +49,13 @@ SITE_CONFIG = {
         "Acercamos servicios digitales a comunidades rurales, comercios, "
         "instituciones y hogares que necesitan estar conectados."
     ),
-    "stats": [
-        {"value": "+500", "label": "Negocios conectados"},
-        {"value": "99.9%", "label": "Estabilidad de enlaces"},
-        {"value": "24/7", "label": "Soporte técnico"},
-        {"value": "+50", "label": "Zonas rurales"},
-    ],
+    "stats": [],
     "socials": [],
     "dedicated_title": "Ancho de banda exclusivo para tu operación.",
     "dedicated_title_highlight": "Sin compartir.",
     "dedicated_description": (
         "El internet dedicado te asigna una conexión privada y simétrica: "
-        "toda la capacidad es para tu negocio, con respuesta garantizada "
-        "y monitoreo continuo."
+        "toda la capacidad es para tu negocio, con monitoreo continuo."
     ),
     "dedicated_features": [
         {
@@ -63,25 +71,59 @@ SITE_CONFIG = {
             "text": "Dirección estática para servidores, cámaras y accesos remotos.",
         },
         {
-            "title": "SLA de 99.9%",
-            "text": "Compromiso por escrito, con monitoreo proactivo las 24 horas.",
-        },
-        {
             "title": "Fibra propia",
             "text": "Red de última milla propia: sin terceros entre nosotros y tu oficina.",
         },
         {
             "title": "Soporte prioritario",
-            "text": "Ingeniero asignado y respuesta garantizada en minutos.",
+            "text": "Atención de ingeniería con seguimiento de tu caso.",
         },
     ],
+    "payment_instructions": "",
+}
+
+# --- Contenido de EJEMPLO (solo con --demo) ---------------------------------
+DEMO_SITE_CONFIG = {
+    "coverage_zones": "Ciudad de México, Guadalajara, Monterrey, Puebla",
+    "stats": [
+        {"value": "+500", "label": "Negocios conectados"},
+        {"value": "99.9%", "label": "Estabilidad de enlaces"},
+        {"value": "24/7", "label": "Soporte técnico"},
+        {"value": "+50", "label": "Zonas rurales"},
+    ],
     "payment_instructions": (
-        "Banco Ejemplo, Cuenta: 0123456789, CLABE interbancaria: "
-        "012180001234567890. En tu transferencia usa la referencia "
-        "que te asignamos al registrar el pago. También aceptamos "
-        "pagos con enlace de tarjeta y en tiendas de conveniencia."
+        "EJEMPLO — no usar en producción. Banco Ejemplo, Cuenta: 0123456789, "
+        "CLABE interbancaria: 012180001234567890. Usa la referencia que te "
+        "asignamos al registrar el pago."
     ),
 }
+
+DEMO_PLANS = [
+    {
+        "name": "Esencial (ejemplo)",
+        "speed": "100 Mbps",
+        "price": "$299",
+        "price_amount": "299.00",
+        "period": "/mes",
+        "tagline": "Plan de ejemplo. Sustituye el precio por el real.",
+        "features": ["WiFi incluido", "Instalación incluida", "Soporte técnico"],
+        "is_popular": False,
+        "url": "#contacto",
+        "order": 0,
+    },
+    {
+        "name": "Familiar (ejemplo)",
+        "speed": "300 Mbps",
+        "price": "$499",
+        "price_amount": "499.00",
+        "period": "/mes",
+        "tagline": "Plan de ejemplo. Sustituye el precio por el real.",
+        "features": ["Router WiFi 6", "Hasta 10 dispositivos", "Soporte prioritario"],
+        "is_popular": True,
+        "url": "#contacto",
+        "order": 1,
+    },
+]
 
 SERVICES = [
     {
@@ -90,7 +132,7 @@ SERVICES = [
         "icon": "⌁",
         "lottie_file": "signal.json",
         "url": "#dedicado",
-        "link_text": "Solicitar información",
+        "link_text": "Conocer el servicio",
         "order": 0,
     },
     {
@@ -99,7 +141,7 @@ SERVICES = [
         "icon": "☁",
         "lottie_file": "dashboard.json",
         "url": "#contacto",
-        "link_text": "Conoce más",
+        "link_text": "Conocer el servicio",
         "order": 1,
     },
     {
@@ -108,7 +150,7 @@ SERVICES = [
         "icon": "♧",
         "lottie_file": "mountain.json",
         "url": "#rural",
-        "link_text": "Ver propuesta",
+        "link_text": "Conocer el servicio",
         "order": 2,
     },
     {
@@ -117,7 +159,7 @@ SERVICES = [
         "icon": "▤",
         "lottie_file": "",
         "url": "#contacto",
-        "link_text": "Hablemos",
+        "link_text": "Conocer el servicio",
         "order": 3,
     },
     {
@@ -126,7 +168,7 @@ SERVICES = [
         "icon": "</>",
         "lottie_file": "code.json",
         "url": "#contacto",
-        "link_text": "Desarrolla tu proyecto",
+        "link_text": "Conocer el servicio",
         "order": 4,
     },
     {
@@ -135,61 +177,8 @@ SERVICES = [
         "icon": "▣",
         "lottie_file": "",
         "url": "#contacto",
-        "link_text": "Crea tu página",
+        "link_text": "Conocer el servicio",
         "order": 5,
-    },
-]
-
-PLANS = [
-    {
-        "name": "Esencial",
-        "speed": "100 Mbps",
-        "price": "$299",
-        "period": "/mes",
-        "tagline": "Para empezar a conectar tu casa sin complicaciones.",
-        "features": [
-            "WiFi incluido",
-            "Instalación gratis",
-            "Soporte técnico 24/7",
-            "Ideal para 1 a 3 dispositivos",
-        ],
-        "is_popular": False,
-        "url": "#contacto",
-        "order": 0,
-    },
-    {
-        "name": "Familiar",
-        "speed": "300 Mbps",
-        "price": "$499",
-        "period": "/mes",
-        "tagline": "El equilibrio perfecto: velocidad y precio para toda la casa.",
-        "features": [
-            "Todo lo del plan Esencial",
-            "Hasta 10 dispositivos",
-            "Router WiFi 6",
-            "Prioridad en soporte técnico",
-            "Streaming y videollamadas sin cortes",
-        ],
-        "is_popular": True,
-        "url": "#contacto",
-        "order": 1,
-    },
-    {
-        "name": "Turbo",
-        "speed": "600 Mbps",
-        "price": "$799",
-        "period": "/mes",
-        "tagline": "Máxima velocidad para hogares conectados y teletrabajo pesado.",
-        "features": [
-            "Todo lo del plan Familiar",
-            "Hasta 20 dispositivos",
-            "IP fija opcional",
-            "Instalación prioritaria",
-            "Asesoría de red incluida",
-        ],
-        "is_popular": False,
-        "url": "#contacto",
-        "order": 2,
     },
 ]
 
@@ -263,76 +252,81 @@ DIFFERENTIATORS = [
     },
 ]
 
-
+# Borradores legales: sustituir por el texto revisado por un abogado.
 LEGAL_PAGES = [
     {
         "title": "Aviso de privacidad",
         "slug": "aviso-de-privacidad",
         "order": 0,
-        "content": """En INTERNETWORK respetamos tu privacidad. Este aviso describe cómo recopilamos, usamos y protegemos tus datos personales cuando usas nuestro sitio web o te comunicas con nosotros.
-Somos INTERNETWORK, responsable del tratamiento de tus datos. Puedes contactarnos a través del formulario de contacto o del correo indicado en la sección de contacto.
-¿Qué datos recopilamos? Cuando envías el formulario de contacto recopilamos: nombre, correo electrónico, empresa, teléfono y mensaje. También guardamos tu dirección IP y la fecha de envío por seguridad.
-¿Para qué usamos tus datos? Para atender tu solicitud, enviarte información sobre nuestros servicios, gestionar la relación comercial y cumplir obligaciones legales.
-Base legal: el tratamiento se basa en tu consentimiento al enviar el formulario y en la ejecución de la relación contractual.
-Tus derechos: puedes acceder, rectificar, cancelar u oponerte al tratamiento de tus datos, así como solicitar su portabilidad. Ejerce tus derechos escribiendo al correo de contacto.
-Cookies: usamos cookies técnicas esenciales y analíticas anónimas. Consulta nuestra Política de cookies para más detalle.
-Conservación: tus datos se conservan mientras dure la relación comercial y el tiempo necesario para cumplir obligaciones legales.
-Cambios: este aviso puede actualizarse. La versión vigente es la que aparece en nuestro sitio.""",
+        "content": """BORRADOR PARA REVISIÓN DE UN ABOGADO. En INTERNETWORK respetamos tu privacidad. Este aviso describe cómo tratamos tus datos personales cuando usas el sitio, nos escribes o registras un pago.
+Responsable: INTERNETWORK. El domicilio y los datos de contacto del responsable deben completarse antes de publicar este aviso.
+Datos que tratamos: nombre, correo, teléfono, empresa y mensaje (contacto); nombre, correo, teléfono, servicio y monto (pagos); y los pagos asociados a tu correo cuando consultas el panel de clientes.
+Finalidades primarias: atender tu solicitud, registrar y confirmar tu pago, dar seguimiento a la relación comercial y cumplir obligaciones legales.
+Finalidades secundarias: enviarte información sobre nuestros servicios. Puedes oponerte sin afectar la relación principal.
+Derechos ARCO: puedes acceder, rectificar, cancelar u oponerte al tratamiento de tus datos, así como revocar tu consentimiento, escribiendo al correo de contacto.
+Transferencias: no transferimos tus datos a terceros salvo a los proveedores necesarios para operar el sitio y procesar pagos, o cuando la ley lo exija.
+Conservación: conservamos tus datos mientras exista la relación comercial y el tiempo necesario para cumplir obligaciones legales.
+Cambios: este aviso puede actualizarse. Publicaremos la versión vigente en este sitio.""",
     },
     {
         "title": "Términos y condiciones",
         "slug": "terminos-y-condiciones",
         "order": 1,
-        "content": """Estos términos regulan el uso del sitio web de INTERNETWORK y la contratación de sus servicios. Al usar el sitio o contratar un servicio, aceptas estos términos.
-Servicios: ofrecemos internet dedicado, conectividad rural, soluciones IT, infraestructura, desarrollo de software y páginas web, conforme a las propuestas y planes publicados en el sitio.
-Obligaciones del usuario: proporcionar información veraz, usar los servicios de forma lícita y no interferir con la red ni la infraestructura de INTERNETWORK.
-Disponibilidad: procuramos la continuidad del servicio. Los planes y proyectos pueden incluir compromisos de estabilidad (SLA) según la propuesta contratada.
-Pagos: los precios mostrados son referenciales y se confirman en la propuesta o contrato correspondiente.
-Propiedad intelectual: el contenido, diseños, logotipos y software del sitio son propiedad de INTERNETWORK o de sus licenciantes.
-Responsabilidad: INTERNETWORK no se hace responsable de daños indirectos ni de la indisponibilidad temporal del sitio, salvo lo establecido en la ley aplicable.
-Ley aplicable: estos términos se rigen por la legislación del país donde opera INTERNETWORK.""",
+        "content": """BORRADOR PARA REVISIÓN DE UN ABOGADO. Estos términos regulan el uso del sitio de INTERNETWORK y la contratación de sus servicios.
+Servicios: internet dedicado, conectividad rural, soluciones IT, infraestructura, desarrollo de software y páginas web, conforme a la propuesta contratada.
+Obligaciones del usuario: proporcionar información veraz, usar los servicios de forma lícita y no interferir con la red ni la infraestructura.
+Disponibilidad: procuramos la continuidad del servicio. Los compromisos de nivel de servicio se establecen por escrito en cada propuesta.
+Pagos: los montos se confirman en la propuesta o contrato correspondiente.
+Propiedad intelectual: el contenido, diseños, logotipos y software del sitio pertenecen a INTERNETWORK o a sus licenciantes.
+Ley aplicable: estos términos se rigen por la legislación aplicable en el domicilio del responsable.""",
     },
     {
         "title": "Aviso legal",
         "slug": "aviso-legal",
         "order": 2,
-        "content": """El presente aviso legal regula el uso del sitio web de INTERNETWORK (en adelante, el sitio).
-Titular: INTERNETWORK. La información de contacto completa está disponible en la sección de contacto del sitio.
-Objeto: el sitio informa sobre los servicios de INTERNETWORK y permite enviar solicitudes de información a través del formulario de contacto.
+        "content": """BORRADOR PARA REVISIÓN DE UN ABOGADO. Este aviso legal regula el uso del sitio de INTERNETWORK.
+Titular: INTERNETWORK. Los datos completos de contacto deben publicarse antes de entrar en operación.
+Objeto: el sitio informa sobre los servicios de INTERNETWORK y permite enviar solicitudes y registrar pagos.
 Responsabilidad del usuario: el usuario asume el uso lícito del sitio y la veracidad de la información que proporciona.
-Propiedad intelectual e industrial: todos los contenidos del sitio están protegidos. Queda prohibida su reproducción total o parcial sin autorización por escrito.
-Enlaces de terceros: el sitio puede incluir enlaces externos sobre cuyo contenido INTERNETWORK no se responsabiliza.
-Modificaciones: INTERNETWORK se reserva el derecho de modificar el sitio, sus servicios y el presente aviso sin previo aviso.""",
+Propiedad intelectual: queda prohibida la reproducción total o parcial de los contenidos sin autorización por escrito.
+Enlaces de terceros: no nos responsabilizamos del contenido de sitios externos enlazados.
+Modificaciones: podemos modificar el sitio, sus servicios y este aviso.""",
     },
     {
         "title": "Política de cookies",
         "slug": "politica-de-cookies",
         "order": 3,
-        "content": """Las cookies son pequeños archivos que el sitio guarda en tu navegador para recordar tus preferencias y mejorar la experiencia de navegación.
-Cookies técnicas: esenciales para el funcionamiento del sitio (sesión, idioma y seguridad). No se pueden desactivar.
-Cookies analíticas: permiten conocer de forma anónima cómo navegan los visitantes para mejorar el sitio. No identifican a personas.
-Terceros: podemos usar servicios de analítica que instalan sus propias cookies bajo sus propias políticas de privacidad.
-Cómo desactivarlas: puedes eliminar o bloquear cookies desde la configuración de tu navegador. Desactivarlas puede afectar algunas funciones del sitio.
-Al seguir navegando entendemos que aceptas el uso de cookies. Puedes revocar tu consentimiento en cualquier momento desde tu navegador.""",
+        "content": """BORRADOR PARA REVISIÓN DE UN ABOGADO. Este sitio usa únicamente cookies técnicas necesarias para su funcionamiento.
+Cookies técnicas: mantienen la sesión del panel de clientes y protegen los formularios contra falsificaciones. No se pueden desactivar sin afectar el funcionamiento.
+Analítica: este sitio no instala cookies de analítica ni de publicidad. Si en el futuro se añaden, se actualizará esta política y se pedirá consentimiento.
+Cómo desactivarlas: puedes eliminar o bloquear cookies desde la configuración de tu navegador.""",
     },
 ]
 
 
 class Command(BaseCommand):
-    help = "Carga el contenido de demostración del sitio (equivalente al HTML original)."
+    help = "Carga el contenido base del sitio (no sobrescribe lo editado en el admin)."
 
     def add_arguments(self, parser):
         parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Sobrescribe el contenido existente con los valores base.",
+        )
+        parser.add_argument(
+            "--demo",
+            action="store_true",
+            help="Carga además contenido de EJEMPLO (precios, cifras y datos bancarios ficticios).",
+        )
+        parser.add_argument(
             "--reset",
             action="store_true",
-            help="Elimina servicios, pasos y diferenciadores existentes antes de cargar.",
+            help="Elimina el contenido base y lo vuelve a crear (destructivo; implica --force).",
         )
 
     def handle(self, *args, **options):
-        SiteConfig.objects.update_or_create(
-            pk=1, defaults={k: v for k, v in SITE_CONFIG.items()}
-        )
-        self.stdout.write(self.style.SUCCESS("Configuración del sitio actualizada."))
+        force = options["force"] or options["reset"]
+        demo = options["demo"]
 
         if options["reset"]:
             Service.objects.all().delete()
@@ -340,26 +334,49 @@ class Command(BaseCommand):
             StoryStep.objects.all().delete()
             Differentiator.objects.all().delete()
             LegalPage.objects.all().delete()
+            self.stdout.write(self.style.WARNING("Contenido anterior eliminado (--reset)."))
 
-        for item in SERVICES:
-            Service.objects.update_or_create(title=item["title"], defaults=item)
-        for item in PLANS:
-            Plan.objects.update_or_create(name=item["name"], defaults=item)
-        for item in LEGAL_PAGES:
-            LegalPage.objects.update_or_create(slug=item["slug"], defaults=item)
-        for item in STORY_STEPS:
-            StoryStep.objects.update_or_create(label=item["label"], defaults=item)
-        for item in DIFFERENTIATORS:
-            Differentiator.objects.update_or_create(title=item["title"], defaults=item)
+        config_values = dict(BASE_SITE_CONFIG)
+        if demo:
+            config_values.update(DEMO_SITE_CONFIG)
+
+        if force:
+            SiteConfig.objects.update_or_create(pk=1, defaults=config_values)
+        else:
+            SiteConfig.objects.get_or_create(pk=1, defaults=config_values)
+
+        self._load(Service, SERVICES, "title", force)
+        self._load(LegalPage, LEGAL_PAGES, "slug", force)
+        self._load(StoryStep, STORY_STEPS, "label", force)
+        self._load(Differentiator, DIFFERENTIATORS, "title", force)
+        if demo:
+            self._load(Plan, DEMO_PLANS, "name", force)
 
         self.stdout.write(
             self.style.SUCCESS(
                 f"Seed completado: {Service.objects.count()} servicios, "
-                f"{Plan.objects.count()} planes residenciales, "
+                f"{Plan.objects.count()} planes, "
                 f"{LegalPage.objects.count()} páginas legales, "
-                f"{StoryStep.objects.count()} pasos de historia, "
+                f"{StoryStep.objects.count()} pasos, "
                 f"{Differentiator.objects.count()} diferenciadores."
             )
         )
+        if demo:
+            self.stdout.write(
+                self.style.WARNING(
+                    "Modo --demo: se cargaron precios, cifras, cobertura y datos "
+                    "bancarios FICTICIOS. No los publiques; sustitúyelos por los reales."
+                )
+            )
         if not Lead.objects.exists():
-            self.stdout.write(self.style.WARNING("No hay solicitudes (Lead) en la base de datos."))
+            self.stdout.write("No hay solicitudes (Lead) en la base de datos.")
+
+    @staticmethod
+    def _load(model, items, key, force):
+        """Crea lo que falta; con ``force`` sobrescribe lo existente."""
+        for item in items:
+            lookup = {key: item[key]}
+            if force:
+                model.objects.update_or_create(**lookup, defaults=item)
+            else:
+                model.objects.get_or_create(**lookup, defaults=item)

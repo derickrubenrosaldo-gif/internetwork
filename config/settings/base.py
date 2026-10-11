@@ -1,5 +1,6 @@
 """Configuración base compartida por desarrollo y producción."""
 
+from decimal import Decimal
 from pathlib import Path
 
 import environ
@@ -45,6 +46,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.middleware.SecurityHeadersMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -84,7 +86,7 @@ else:
 # Internacionalización
 # ---------------------------------------------------------------------------
 LANGUAGE_CODE = "es"
-TIME_ZONE = "UTC"
+TIME_ZONE = "America/Mexico_City"
 USE_I18N = True
 USE_TZ = True
 
@@ -117,3 +119,25 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=CONTACT_EMAIL)
 
 RATE_LIMIT_REQUESTS = env("RATE_LIMIT_REQUESTS")
 RATE_LIMIT_SECONDS = env("RATE_LIMIT_SECONDS")
+
+# ---------------------------------------------------------------------------
+# Seguridad operativa
+# ---------------------------------------------------------------------------
+# Nº de proxies de confianza delante de la app (0 = usar REMOTE_ADDR).
+TRUSTED_PROXY_COUNT = env.int("TRUSTED_PROXY_COUNT", default=0)
+
+# Tope del monto que un cliente puede registrar en un pago.
+PAYMENT_MAX_AMOUNT = Decimal(env("PAYMENT_MAX_AMOUNT", default="100000"))
+
+# Enlaces mágicos del panel de clientes (caducidad y rate limit).
+PANEL_LINK_MAX_AGE = env.int("PANEL_LINK_MAX_AGE", default=900)  # 15 minutos
+PANEL_LINK_REQUESTS = env.int("PANEL_LINK_REQUESTS", default=3)
+PANEL_LINK_SECONDS = env.int("PANEL_LINK_SECONDS", default=3600)
+
+# Mercado Pago (opcional). Sin MP_ACCESS_TOKEN, tarjeta y OXXO quedan ocultos.
+MP_ACCESS_TOKEN = env("MP_ACCESS_TOKEN", default="")
+MP_PUBLIC_KEY = env("MP_PUBLIC_KEY", default="")
+MP_WEBHOOK_SECRET = env("MP_WEBHOOK_SECRET", default="")
+
+# Versión del aviso de privacidad aceptado en los formularios.
+PRIVACY_NOTICE_VERSION = env("PRIVACY_NOTICE_VERSION", default="2026-10")

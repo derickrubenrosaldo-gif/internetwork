@@ -37,6 +37,11 @@ export function initPaymentForm() {
       const data = await response.json().catch(() => ({}));
 
       if (response.ok) {
+        /* Con pasarela: el servidor devuelve la URL del checkout hospedado. */
+        if (data.checkout_url) {
+          window.location.assign(data.checkout_url);
+          return;
+        }
         form.reset();
         showSuccess(data);
       } else {
@@ -54,7 +59,9 @@ export function initPaymentForm() {
 
   function setLoading(loading) {
     submitBtn.disabled = loading;
-    submitBtn.textContent = loading ? "Registrando…" : "Registrar pago";
+    submitBtn.textContent = loading
+      ? "Generando…"
+      : "Generar mi referencia de pago";
   }
 
   function clearState() {
@@ -88,7 +95,8 @@ export function initPaymentForm() {
 
   function markInvalid(formEl) {
     formEl.querySelectorAll("[required]").forEach((field) => {
-      if (!field.value.trim()) field.classList.add("invalid");
+      const empty = field.type === "checkbox" ? !field.checked : !field.value.trim();
+      if (empty) field.classList.add("invalid");
     });
   }
 

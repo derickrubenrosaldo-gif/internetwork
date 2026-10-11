@@ -1,4 +1,5 @@
-<!-- PLANES RESIDENCIALES -->
+<!-- PLANES RESIDENCIALES (solo si hay planes con precio real) -->
+{% if plans %}
 <section class="plans" id="planes" aria-label="Planes residenciales">
   <div class="orb orb-a" aria-hidden="true"></div>
   <div class="orb orb-b" aria-hidden="true"></div>
@@ -27,3 +28,4 @@
     </div>
   </div>
 </section>
+{% endif %}

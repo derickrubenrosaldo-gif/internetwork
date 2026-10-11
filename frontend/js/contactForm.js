@@ -87,7 +87,8 @@ export function initContactForm() {
 
   function markInvalid(formEl) {
     formEl.querySelectorAll("[required]").forEach((field) => {
-      if (!field.value.trim()) field.classList.add("invalid");
+      const empty = field.type === "checkbox" ? !field.checked : !field.value.trim();
+      if (empty) field.classList.add("invalid");
     });
   }
 

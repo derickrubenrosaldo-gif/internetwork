@@ -6,6 +6,7 @@ en el índice y acciones masivas para solicitudes y pagos.
 
 from django.contrib import admin
 from django.db.models import Sum
+from django.utils import timezone
 
 from .models import (
     Differentiator,
@@ -16,6 +17,7 @@ from .models import (
     Service,
     SiteConfig,
     StoryStep,
+    UsedLoginToken,
 )
 from .views import leads_to_csv, payments_to_csv
 
@@ -133,13 +135,14 @@ class PaymentAdmin(admin.ModelAdmin):
         "amount",
         "method",
         "status",
+        "paid_at",
         "created_at",
     )
-    list_editable = ("status",)
-    list_filter = ("status", "method")
-    search_fields = ("reference", "name", "email", "service")
+    list_filter = ("status", "method", "provider")
+    search_fields = ("reference", "name", "email", "service", "provider_ref")
     date_hierarchy = "created_at"
     list_per_page = 40
+    readonly_fields = ("provider", "provider_ref", "paid_at", "confirmed_by")
     actions = ["export_csv", "mark_paid"]
 
     @admin.action(description="Exportar selección a CSV")
@@ -148,8 +151,18 @@ class PaymentAdmin(admin.ModelAdmin):
 
     @admin.action(description="Marcar como pagado")
     def mark_paid(self, request, queryset):
-        updated = queryset.update(status="paid")
+        updated = queryset.update(status="paid", paid_at=timezone.now(), confirmed_by=request.user)
         self.message_user(request, f"{updated} pago(s) marcados como pagados.")
+
+
+@admin.register(UsedLoginToken, site=admin_site)
+class UsedLoginTokenAdmin(admin.ModelAdmin):
+    list_display = ("nonce", "email", "created_at")
+    search_fields = ("nonce", "email")
+    date_hierarchy = "created_at"
+
+    def has_add_permission(self, request):
+        return False
 
 
 @admin.register(Lead, site=admin_site)

@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0001_initial'),
+        ("core", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='siteconfig',
-            name='stats',
-            field=models.JSONField(blank=True, default=list, help_text='Lista de {"value": "+500", "label": "Negocios conectados"}.', verbose_name='Resultados (banda de cifras)'),
+            model_name="siteconfig",
+            name="stats",
+            field=models.JSONField(
+                blank=True,
+                default=list,
+                help_text='Lista de {"value": "+500", "label": "Negocios conectados"}.',
+                verbose_name="Resultados (banda de cifras)",
+            ),
         ),
     ]

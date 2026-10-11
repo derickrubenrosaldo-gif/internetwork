@@ -13,27 +13,35 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   web:
     build: .
+    # Las migraciones van en el arranque; el contenido se carga con
+    # `python manage.py seed_site` a mano (nunca pisa lo editado en el admin).
     command: >
       sh -c "python manage.py migrate &&
-             python manage.py seed_site &&
              gunicorn config.wsgi --bind 0.0.0.0:8000 --workers 3"
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
-      SECRET_KEY: cambiar-por-una-clave-segura-y-larga
-      DEBUG: "False"
-      ALLOWED_HOSTS: localhost,127.0.0.1
       DATABASE_URL: postgres://internetwork:internetwork@db:5432/internetwork
-      CONTACT_EMAIL: contacto@tudominio.com
-      # WHATSAPP_NUMBER: 5219511234567
-      # EMAIL_HOST: smcp.tudominio.com
-      # EMAIL_HOST_USER: usuario
-      # EMAIL_HOST_PASSWORD: clave
+      CACHE_URL: redis://redis:6379/0
+      # En local no hay TLS delante: evita el bucle de redirección a HTTPS.
+      SECURE_SSL_REDIRECT: "False"
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
 volumes:

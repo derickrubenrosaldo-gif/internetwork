@@ -4,36 +4,78 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0005_legalpage'),
+        ("core", "0005_legalpage"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Payment',
+            name="Payment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=150, verbose_name='Nombre')),
-                ('email', models.EmailField(max_length=254, verbose_name='Correo')),
-                ('phone', models.CharField(blank=True, default='', max_length=40, verbose_name='Teléfono')),
-                ('service', models.CharField(max_length=150, verbose_name='Servicio o plan')),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Monto')),
-                ('method', models.CharField(choices=[('transfer', 'Transferencia'), ('card', 'Tarjeta'), ('cash', 'Efectivo / OXXO')], max_length=20, verbose_name='Método')),
-                ('reference', models.CharField(max_length=40, unique=True, verbose_name='Referencia')),
-                ('status', models.CharField(choices=[('pending', 'Pendiente'), ('paid', 'Pagado')], default='pending', max_length=20, verbose_name='Estado')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Fecha')),
-                ('ip_address', models.GenericIPAddressField(blank=True, null=True, verbose_name='IP')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=150, verbose_name="Nombre")),
+                ("email", models.EmailField(max_length=254, verbose_name="Correo")),
+                (
+                    "phone",
+                    models.CharField(
+                        blank=True, default="", max_length=40, verbose_name="Teléfono"
+                    ),
+                ),
+                ("service", models.CharField(max_length=150, verbose_name="Servicio o plan")),
+                (
+                    "amount",
+                    models.DecimalField(decimal_places=2, max_digits=10, verbose_name="Monto"),
+                ),
+                (
+                    "method",
+                    models.CharField(
+                        choices=[
+                            ("transfer", "Transferencia"),
+                            ("card", "Tarjeta"),
+                            ("cash", "Efectivo / OXXO"),
+                        ],
+                        max_length=20,
+                        verbose_name="Método",
+                    ),
+                ),
+                (
+                    "reference",
+                    models.CharField(max_length=40, unique=True, verbose_name="Referencia"),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("pending", "Pendiente"), ("paid", "Pagado")],
+                        default="pending",
+                        max_length=20,
+                        verbose_name="Estado",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Fecha")),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(blank=True, null=True, verbose_name="IP"),
+                ),
             ],
             options={
-                'verbose_name': 'Pago',
-                'verbose_name_plural': 'Pagos',
-                'ordering': ['-created_at'],
+                "verbose_name": "Pago",
+                "verbose_name_plural": "Pagos",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.AddField(
-            model_name='siteconfig',
-            name='payment_instructions',
-            field=models.TextField(blank=True, default='', help_text='Datos de cuenta o instrucciones para transferir.', verbose_name='Pagos · instrucciones bancarias'),
+            model_name="siteconfig",
+            name="payment_instructions",
+            field=models.TextField(
+                blank=True,
+                default="",
+                help_text="Datos de cuenta o instrucciones para transferir.",
+                verbose_name="Pagos · instrucciones bancarias",
+            ),
         ),
     ]

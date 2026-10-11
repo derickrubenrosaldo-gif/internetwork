@@ -1,0 +1,8 @@
+Enlace de acceso a tu panel de INTERNETWORK
+
+Abre este enlace para consultar el estado de tus pagos:
+
+{{ link }}
+
+El enlace caduca en 15 minutos y solo puede usarse una vez.
+Si no solicitaste este acceso, ignora este mensaje.
