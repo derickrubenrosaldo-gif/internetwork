@@ -4,39 +4,37 @@
 <section class="panel-login">
   <div class="panel-card">
     <div class="panel-mark" aria-hidden="true"></div>
-    <h1 class="panel-title">Panel de clientes</h1>
+    <h1 class="panel-title">Área de clientes</h1>
+    <p class="panel-sub">Entra con tu usuario y contraseña para ver tu servicio y tus mensualidades.</p>
 
-    {% if sent %}
-      <p class="panel-sub">
-        Si ese correo tiene pagos registrados, te enviamos un enlace para entrar.
-        Revisa tu bandeja (y la carpeta de spam). El enlace caduca en 15 minutos
-        y solo puede usarse una vez.
-      </p>
-      <a class="btn primary panel-btn" href="{% url 'core:client_panel' %}">Volver</a>
-    {% else %}
-      <p class="panel-sub">Escribe tu correo y te enviamos un enlace para consultar tus pagos.</p>
-
-      {% if error %}
-        <div class="panel-error" role="alert">{{ error }}</div>
-      {% endif %}
-
-      <form method="post" action="{% url 'core:panel_request_link' %}" class="panel-form" novalidate>
-        {% csrf_token %}
-        <label class="pl-label" for="id_email">Correo electrónico</label>
-        <input class="pl-input" type="email" id="id_email" name="email"
-               autocomplete="email" required>
-        <button type="submit" class="btn primary panel-btn">Enviarme el enlace</button>
-      </form>
-
-      <p class="panel-help">
-        ¿Problemas para entrar?
-        {% if config.whatsapp %}Escríbenos por
-          <a href="{{ config.whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>.
-        {% elif config.email %}Escríbenos a
-          <a href="mailto:{{ config.email }}">{{ config.email }}</a>.
-        {% endif %}
-      </p>
+    {% if form.non_field_errors %}
+      <div class="panel-error" role="alert">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      </div>
     {% endif %}
+
+    <form method="post" action="{% url 'core:client_panel_login' %}" class="panel-form" novalidate>
+      {% csrf_token %}
+      <label class="pl-label" for="{{ form.username.id_for_label }}">Usuario</label>
+      <input class="pl-input" type="text" name="username" id="{{ form.username.id_for_label }}"
+             autocomplete="username" autocapitalize="none" required autofocus>
+
+      <label class="pl-label" for="{{ form.password.id_for_label }}">Contraseña</label>
+      <input class="pl-input" type="password" name="password" id="{{ form.password.id_for_label }}"
+             autocomplete="current-password" required>
+
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="btn primary panel-btn">Entrar</button>
+    </form>
+
+    <p class="panel-help">
+      ¿Olvidaste tu contraseña?
+      {% if config.whatsapp %}Escríbenos por
+        <a href="{{ config.whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>.
+      {% elif config.email %}Escríbenos a
+        <a href="mailto:{{ config.email }}">{{ config.email }}</a>.
+      {% endif %}
+    </p>
   </div>
 </section>
 {% endblock %}

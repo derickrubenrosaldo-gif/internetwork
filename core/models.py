@@ -440,3 +440,99 @@ class Lead(models.Model):
 
     def __str__(self):
         return f"{self.name} — {self.service_of_interest} ({self.get_status_display()})"
+
+
+class ClientProfile(models.Model):
+    """Cuenta de cliente del panel: servicio contratado y datos de contacto.
+
+    Las credenciales viven en Django (User). Cuando el sistema externo de
+    mensualidades esté conectado, estos campos se sincronizan desde ahí.
+    """
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        verbose_name="Usuario",
+        on_delete=models.CASCADE,
+        related_name="client_profile",
+    )
+    full_name = models.CharField("Nombre completo", max_length=150, blank=True, default="")
+    phone = models.CharField("Teléfono", max_length=40, blank=True, default="")
+    address = models.CharField("Dirección", max_length=255, blank=True, default="")
+    customer_code = models.CharField(
+        "Código de cliente",
+        max_length=40,
+        blank=True,
+        default="",
+        help_text="Identificador en el sistema externo (Supabase).",
+    )
+    plan = models.ForeignKey(
+        Plan,
+        verbose_name="Plan contratado",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="clients",
+    )
+    service = models.CharField(
+        "Servicio",
+        max_length=150,
+        blank=True,
+        default="",
+        help_text="Descripción del servicio si no corresponde a un plan.",
+    )
+    monthly_amount = models.DecimalField(
+        "Mensualidad", max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    billing_day = models.PositiveSmallIntegerField(
+        "Día de pago", default=1, help_text="Día del mes en que vence la mensualidad."
+    )
+    active = models.BooleanField("Activo", default=True)
+    created_at = models.DateTimeField("Alta", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Cliente"
+        verbose_name_plural = "Clientes"
+
+    @property
+    def display_name(self):
+        return self.full_name or self.user.get_username()
+
+    @property
+    def service_label(self):
+        if self.plan:
+            return f"{self.plan.name} ({self.plan.speed})" if self.plan.speed else self.plan.name
+        return self.service
+
+    def __str__(self):
+        return f"{self.display_name} — {self.service_label or 'sin servicio'}"
+
+
+class MonthlyCharge(models.Model):
+    """Mensualidad de un cliente: qué debe, cuándo y si ya pagó."""
+
+    STATUS_CHOICES = [
+        ("pending", "Por pagar"),
+        ("paid", "Pagada"),
+        ("late", "Vencida"),
+    ]
+
+    client = models.ForeignKey(
+        ClientProfile, verbose_name="Cliente", on_delete=models.CASCADE, related_name="charges"
+    )
+    period = models.CharField("Periodo", max_length=7, help_text="Formato AAAA-MM.")
+    amount = models.DecimalField("Monto", max_digits=10, decimal_places=2)
+    due_date = models.DateField("Fecha de pago")
+    paid_at = models.DateField("Pagado el", blank=True, null=True)
+    status = models.CharField("Estado", max_length=10, choices=STATUS_CHOICES, default="pending")
+    reference = models.CharField("Referencia", max_length=40, blank=True, default="")
+
+    class Meta:
+        ordering = ["-period"]
+        verbose_name = "Mensualidad"
+        verbose_name_plural = "Mensualidades"
+        constraints = [
+            models.UniqueConstraint(fields=["client", "period"], name="uniq_cliente_periodo")
+        ]
+
+    def __str__(self):
+        return f"{self.client.display_name} — {self.period} ({self.get_status_display()})"

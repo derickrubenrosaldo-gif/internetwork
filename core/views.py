@@ -7,19 +7,18 @@ import secrets
 from urllib.parse import quote
 
 from django.conf import settings
-from django.core import signing
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import LoginView
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
-from django.core.validators import validate_email
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
-from . import tokens
 from .forms import LeadForm, PaymentForm
 from .models import (
     Differentiator,
@@ -397,115 +396,65 @@ def leads_to_csv(queryset):
 # ---------------------------------------------------------------- Panel de clientes
 
 
-def _panel_login_response(request, **extra):
-    context = {
-        "config": SiteConfig.get_solo(),
-        "title": "Panel de clientes | INTERNETWORK",
-        "meta_description": "Consulta el estado de tus pagos.",
-        "canonical": request.build_absolute_uri("/panel/"),
-    }
-    context.update(extra)
-    return render(request, "panel_login.html", context)
+class ClientLoginForm(AuthenticationForm):
+    """Login de cliente con límite de intentos por IP."""
+
+    def clean(self):
+        ip = get_client_ip(self.request)
+        if not rate_limit(f"login:{ip}", settings.RATE_LIMIT_REQUESTS, settings.RATE_LIMIT_SECONDS):
+            raise ValidationError("Demasiados intentos. Espera unos minutos e inténtalo de nuevo.")
+        return super().clean()
+
+
+class ClientLoginView(LoginView):
+    """Acceso de clientes con usuario y contraseña."""
+
+    template_name = "panel_login.html"
+    redirect_authenticated_user = True
+    authentication_form = ClientLoginForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "config": SiteConfig.get_solo(),
+                "title": "Acceso de clientes | INTERNETWORK",
+                "meta_description": "Consulta tu servicio y tus mensualidades.",
+                "canonical": self.request.build_absolute_uri("/panel/"),
+            }
+        )
+        return context
+
+    def get_success_url(self):
+        return reverse("core:client_panel")
 
 
 @noindex
+@login_required(login_url="core:client_panel_login")
 def client_panel(request):
-    """Panel de clientes: pagos del correo verificado por enlace mágico."""
-    email = request.session.get("client_email")
-    if not email:
-        return _panel_login_response(request)
+    """Panel del cliente: su servicio, sus mensualidades y sus datos."""
+    profile = getattr(request.user, "client_profile", None)
+    charges = profile.charges.all() if profile else []
+    pending = [c for c in charges if c.status != "paid"]
+    paid = [c for c in charges if c.status == "paid"]
+    next_charge = pending[-1] if pending else None
 
-    payments = Payment.objects.filter(email__iexact=email).order_by("-created_at")
-    paid = payments.filter(status="paid")
-    pending = payments.filter(status="pending")
     return render(
         request,
         "panel.html",
         {
             "config": SiteConfig.get_solo(),
-            "payments": payments,
-            "email": email,
-            "total_paid": sum(p.amount for p in paid),
-            "total_pending": sum(p.amount for p in pending),
+            "profile": profile,
+            "charges": charges,
+            "pending_count": len(pending),
+            "paid_count": len(paid),
+            "debt": sum(c.amount for c in pending),
+            "next_charge": next_charge,
             "title": "Mi panel | INTERNETWORK",
-            "meta_description": "Consulta el estado de tus pagos.",
+            "meta_description": "Consulta tu servicio y tus mensualidades.",
             "canonical": request.build_absolute_uri("/panel/"),
         },
     )
-
-
-@noindex
-@require_POST
-def panel_request_link(request):
-    """Envía un enlace de acceso al correo indicado.
-
-    La respuesta es idéntica exista o no el correo: no se revela si hay
-    cuenta. El enlace solo se envía si el correo tiene pagos registrados
-    (evita usar el formulario como emisor de correo masivo).
-    """
-    ip = get_client_ip(request)
-    allowed = rate_limit(
-        f"panel-req:{ip}",
-        settings.PANEL_LINK_REQUESTS,
-        settings.PANEL_LINK_SECONDS,
-    )
-
-    email = (request.POST.get("email") or "").strip().lower()
-    valid = True
-    try:
-        validate_email(email)
-    except ValidationError:
-        valid = False
-
-    if allowed and valid and Payment.objects.filter(email__iexact=email).exists():
-        try:
-            token = tokens.make_token(email)
-            link = request.build_absolute_uri(reverse("core:panel_verify", kwargs={"token": token}))
-            send_mail(
-                "Tu enlace de acceso a INTERNETWORK",
-                render_to_string("email/panel_login.txt", {"link": link}),
-                settings.DEFAULT_FROM_EMAIL or settings.CONTACT_EMAIL,
-                [email],
-                fail_silently=False,
-            )
-        except Exception:
-            logger.exception("No se pudo enviar el enlace de acceso a %s", email)
-
-    return _panel_login_response(request, sent=True)
-
-
-@noindex
-def panel_verify(request, token):
-    """Verifica el enlace mágico e inicia la sesión del cliente."""
-    ip = get_client_ip(request)
-    if not rate_limit(
-        f"panel-verify:{ip}",
-        settings.PANEL_LINK_REQUESTS,
-        settings.PANEL_LINK_SECONDS,
-    ):
-        return _panel_login_response(request, error="Demasiados intentos. Espera unos minutos.")
-
-    try:
-        email, nonce = tokens.read_token(token)
-    except signing.SignatureExpired:
-        return _panel_login_response(request, error="El enlace caducó. Solicita uno nuevo.")
-    except signing.BadSignature:
-        return _panel_login_response(request, error="El enlace no es válido.")
-
-    if not tokens.consume_token(nonce, email):
-        return _panel_login_response(request, error="Este enlace ya se usó. Solicita uno nuevo.")
-
-    request.session.cycle_key()
-    request.session["client_email"] = email
-    return redirect("core:client_panel")
-
-
-@noindex
-@require_POST
-def panel_logout(request):
-    """Cierra la sesión del panel (solo POST)."""
-    request.session.flush()
-    return redirect("core:client_panel")
 
 
 def robots_txt(request):

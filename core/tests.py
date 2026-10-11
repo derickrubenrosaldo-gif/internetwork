@@ -2,21 +2,23 @@
 
 import hashlib
 import hmac
+from datetime import date
 from decimal import Decimal
 from io import StringIO
 from unittest import mock
 
-from django.core import mail
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from . import tokens
 from .models import (
+    ClientProfile,
     Differentiator,
     Lead,
     LegalPage,
+    MonthlyCharge,
     Payment,
     Plan,
     Service,
@@ -399,112 +401,109 @@ class LeadSubmissionTests(BaseTestCase):
 
 
 class ClientPanelTests(BaseTestCase):
+    """Panel del cliente: login con usuario y contraseña y dashboard propio."""
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.payment = Payment.objects.create(
-            name="Ana López",
-            email="ana@acme.com",
-            service="Internet dedicado",
-            amount=Decimal("499.00"),
-            method="transfer",
-            reference="INT-20261010-AB12CD34EF56",
+        cls.user = User.objects.create_user("ana", "ana@acme.com", "ClaveSegura123")
+        cls.profile = ClientProfile.objects.create(
+            user=cls.user,
+            full_name="Ana López",
+            phone="555-0100",
+            address="Calle Managua 4",
+            customer_code="C-001",
+            monthly_amount=Decimal("480.00"),
+            billing_day=5,
         )
-        cls.other = Payment.objects.create(
-            name="Beto Ruiz",
-            email="beto@otro.com",
-            service="Soluciones IT",
-            amount=Decimal("999.00"),
-            method="transfer",
-            reference="INT-20261010-ZZ99YY88XX77",
+        cls.charge = MonthlyCharge.objects.create(
+            client=cls.profile,
+            period="2026-10",
+            amount=Decimal("480.00"),
+            due_date=date(2026, 10, 5),
+        )
+        cls.other = User.objects.create_user("beto", "beto@otro.com", "OtraClave123")
+        cls.other_profile = ClientProfile.objects.create(user=cls.other, full_name="Beto Ruiz")
+        MonthlyCharge.objects.create(
+            client=cls.other_profile,
+            period="2026-10",
+            amount=Decimal("9999.00"),
+            due_date=date(2026, 10, 9),
+            reference="OTRO-CLIENTE",
         )
 
-    def _login(self, email="ana@acme.com"):
-        token = tokens.make_token(email)
-        return self.client.get(reverse("core:panel_verify", kwargs={"token": token}))
+    def test_login_page_renders_with_user_and_password(self):
+        response = self.client.get(reverse("core:client_panel"))
+        self.assertEqual(response.status_code, 302)  # redirige al acceso
+        page = self.client.get(reverse("core:client_panel_login"))
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, 'name="username"')
+        self.assertContains(page, 'name="password"')
+        self.assertNotContains(page, 'name="reference"')
 
-    def test_panel_login_page_renders_email_only(self):
+    def test_login_with_valid_credentials(self):
+        response = self.client.post(
+            reverse("core:client_panel_login"),
+            {"username": "ana", "password": "ClaveSegura123"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("core:client_panel"))
+
+    def test_login_with_invalid_credentials(self):
+        response = self.client.post(
+            reverse("core:client_panel_login"), {"username": "ana", "password": "mala"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_dashboard_requires_login(self):
+        response = self.client.get(reverse("core:client_panel"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("core:client_panel_login"), response.url)
+
+    def test_dashboard_shows_own_service_and_charges(self):
+        self.client.force_login(self.user)
         response = self.client.get(reverse("core:client_panel"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Panel de clientes")
-        self.assertContains(response, 'id="id_email"')
-        self.assertNotContains(response, 'id="id_reference"')
+        self.assertContains(response, "Ana López")
+        self.assertContains(response, "2026-10")
+        self.assertContains(response, "480,00")
+
+    def test_dashboard_does_not_leak_other_clients(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("core:client_panel"))
+        self.assertNotContains(response, "OTRO-CLIENTE")
+        self.assertNotContains(response, "9999.00")
+        self.assertNotContains(response, "Beto Ruiz")
+
+    def test_debt_counts_only_pending(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("core:client_panel"))
+        self.assertEqual(response.context["debt"], Decimal("480.00"))
+        self.assertEqual(response.context["pending_count"], 1)
 
     def test_panel_sets_noindex_header(self):
+        self.client.force_login(self.user)
         response = self.client.get(reverse("core:client_panel"))
         self.assertIn("noindex", response["X-Robots-Tag"])
 
-    def test_robots_disallows_panel_and_admin(self):
-        response = self.client.get(reverse("robots"))
-        body = response.content.decode()
-        self.assertIn("Disallow: /panel/", body)
-        self.assertIn("Disallow: /admin/", body)
-
-    def test_request_link_same_response_for_known_and_unknown_email(self):
-        known = self.client.post(reverse("core:panel_request_link"), {"email": "ana@acme.com"})
-        unknown = self.client.post(reverse("core:panel_request_link"), {"email": "nadie@nada.com"})
-        self.assertEqual(known.status_code, 200)
-        self.assertEqual(unknown.status_code, 200)
-        self.assertEqual(known.content, unknown.content)
-
-    def test_request_link_sends_mail_only_when_payments_exist(self):
-        self.client.post(reverse("core:panel_request_link"), {"email": "ana@acme.com"})
-        self.assertEqual(len(mail.outbox), 1)
-        mail.outbox.clear()
-        self.client.post(reverse("core:panel_request_link"), {"email": "nadie@nada.com"})
-        self.assertEqual(len(mail.outbox), 0)
-
-    def test_verify_valid_token_logs_in(self):
-        response = self._login()
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(self.client.session["client_email"], "ana@acme.com")
-
-    def test_token_is_single_use(self):
-        self._login()
-        self.client.get(reverse("core:panel_logout"))
-        token = tokens.make_token("ana@acme.com")
-        url = reverse("core:panel_verify", kwargs={"token": token})
-        self.client.get(url)
-        second = self.client.get(url)
-        self.assertContains(second, "ya se usó")
-
-    def test_expired_token_is_rejected(self):
-        token = tokens.make_token("ana@acme.com")
-        with override_settings(PANEL_LINK_MAX_AGE=-1):
-            response = self.client.get(reverse("core:panel_verify", kwargs={"token": token}))
-        self.assertContains(response, "caducó")
-
-    def test_tampered_token_is_rejected(self):
-        response = self.client.get(reverse("core:panel_verify", kwargs={"token": "no-es-un-token"}))
-        self.assertContains(response, "no es válido")
-
-    def test_panel_lists_only_own_payments(self):
-        self._login()
-        response = self.client.get(reverse("core:client_panel"))
-        self.assertContains(response, "INT-20261010-AB12CD34EF56")
-        self.assertNotContains(response, "INT-20261010-ZZ99YY88XX77")
-        self.assertNotContains(response, "beto@otro.com")
-
-    def test_panel_shows_totals(self):
-        self._login()
-        response = self.client.get(reverse("core:client_panel"))
-        self.assertEqual(response.context["total_pending"], Decimal("499.00"))
-        self.assertEqual(response.context["total_paid"], Decimal("0.00"))
-
-    def test_panel_denies_direct_access_without_login(self):
-        response = self.client.get(reverse("core:client_panel"))
-        self.assertContains(response, "Panel de clientes")
-        self.assertNotContains(response, "Mi cuenta")
-
     def test_logout_requires_post(self):
-        self._login()
-        self.assertEqual(self.client.get(reverse("core:panel_logout")).status_code, 405)
+        self.client.force_login(self.user)
+        self.assertEqual(self.client.get(reverse("core:client_panel_logout")).status_code, 405)
 
     def test_logout_clears_session(self):
-        self._login()
-        response = self.client.post(reverse("core:panel_logout"))
+        self.client.force_login(self.user)
+        response = self.client.post(reverse("core:client_panel_logout"))
         self.assertEqual(response.status_code, 302)
-        self.assertNotIn("client_email", self.client.session)
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_login_is_rate_limited(self):
+        url = reverse("core:client_panel_login")
+        with override_settings(RATE_LIMIT_REQUESTS=2, RATE_LIMIT_SECONDS=60):
+            self.client.post(url, {"username": "ana", "password": "mala"})
+            self.client.post(url, {"username": "ana", "password": "mala"})
+            response = self.client.post(url, {"username": "ana", "password": "mala"})
+        self.assertContains(response, "Demasiados intentos")
 
 
 class MercadoPagoWebhookTests(BaseTestCase):

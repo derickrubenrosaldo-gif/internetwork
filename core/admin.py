@@ -9,9 +9,11 @@ from django.db.models import Sum
 from django.utils import timezone
 
 from .models import (
+    ClientProfile,
     Differentiator,
     Lead,
     LegalPage,
+    MonthlyCharge,
     Payment,
     Plan,
     Service,
@@ -182,3 +184,39 @@ class LeadAdmin(admin.ModelAdmin):
     def mark_contacted(self, request, queryset):
         updated = queryset.update(status="contacted")
         self.message_user(request, f"{updated} solicitud(es) marcadas como contactadas.")
+
+
+class MonthlyChargeInline(admin.TabularInline):
+    model = MonthlyCharge
+    extra = 1
+    fields = ("period", "amount", "due_date", "status", "paid_at", "reference")
+
+
+@admin.register(ClientProfile, site=admin_site)
+class ClientProfileAdmin(admin.ModelAdmin):
+    list_display = (
+        "display_name",
+        "user",
+        "service_label",
+        "monthly_amount",
+        "billing_day",
+        "active",
+    )
+    list_filter = ("active", "plan")
+    search_fields = ("full_name", "user__username", "user__email", "customer_code", "phone")
+    inlines = [MonthlyChargeInline]
+
+
+@admin.register(MonthlyCharge, site=admin_site)
+class MonthlyChargeAdmin(admin.ModelAdmin):
+    list_display = ("client", "period", "amount", "due_date", "status", "paid_at")
+    list_filter = ("status", "period")
+    search_fields = ("client__full_name", "client__user__username", "reference")
+    date_hierarchy = "due_date"
+    list_editable = ("status",)
+    actions = ["mark_paid"]
+
+    @admin.action(description="Marcar como pagada")
+    def mark_paid(self, request, queryset):
+        updated = queryset.update(status="paid", paid_at=timezone.now().date())
+        self.message_user(request, f"{updated} mensualidad(es) marcadas como pagadas.")

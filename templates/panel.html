@@ -4,68 +4,98 @@
 <section class="panel-home">
   <header class="panel-head">
     <div>
-      <p class="panel-eyebrow">Panel de clientes</p>
-      <h1 class="panel-title">Mi cuenta</h1>
-      <p class="panel-sub">Pagos asociados a <b>{{ email }}</b></p>
+      <p class="panel-eyebrow">Área de clientes</p>
+      <h1 class="panel-title">Hola, {{ profile.display_name|default:user.get_username }}</h1>
+      <p class="panel-sub">
+        {% if profile.service_label %}{{ profile.service_label }}{% else %}Tu cuenta INTERNETWORK{% endif %}
+      </p>
     </div>
-    <form method="post" action="{% url 'core:panel_logout' %}">
+    <form method="post" action="{% url 'core:client_panel_logout' %}">
       {% csrf_token %}
       <button type="submit" class="btn ghost">Cerrar sesión</button>
     </form>
   </header>
 
+  {% if profile %}
   <div class="panel-stats">
     <div class="panel-stat">
-      <b>${{ total_paid|floatformat:2 }}</b>
-      <span>Pagos confirmados</span>
+      <b>{{ profile.service_label|default:"—" }}</b>
+      <span>Servicio contratado</span>
     </div>
-    <div class="panel-stat warn">
-      <b>${{ total_pending|floatformat:2 }}</b>
-      <span>Pagos pendientes</span>
+    <div class="panel-stat {% if pending_count %}warn{% endif %}">
+      <b>{% if next_charge %}{{ next_charge.due_date|date:"d/m/Y" }}{% else %}—{% endif %}</b>
+      <span>Fecha de tu próximo pago</span>
     </div>
-    <div class="panel-stat">
-      <b>{{ payments|length }}</b>
-      <span>Total de pagos</span>
+    <div class="panel-stat {% if pending_count %}warn{% endif %}">
+      <b>${{ debt|floatformat:2 }}</b>
+      <span>{% if pending_count %}{{ pending_count }} mensualidad(es) por pagar{% else %}Sin adeudo{% endif %}</span>
     </div>
   </div>
 
-  {% if payments %}
+  <h2 class="panel-h2">Mensualidades</h2>
+  {% if charges %}
   <div class="panel-table-wrap">
     <table class="panel-table">
       <thead>
         <tr>
-          <th>Referencia</th>
-          <th>Servicio o plan</th>
-          <th>Método</th>
-          <th>Fecha</th>
+          <th>Periodo</th>
           <th>Monto</th>
+          <th>Fecha de pago</th>
           <th>Estado</th>
+          <th>Pagado el</th>
+          <th>Referencia</th>
         </tr>
       </thead>
       <tbody>
-        {% for payment in payments %}
+        {% for charge in charges %}
         <tr>
-          <td class="num">{{ payment.reference }}</td>
-          <td>{{ payment.service }}</td>
-          <td>{{ payment.get_method_display }}</td>
-          <td>{{ payment.created_at|date:"d/m/Y" }}</td>
-          <td class="num">${{ payment.amount|floatformat:2 }}</td>
+          <td class="num">{{ charge.period }}</td>
+          <td class="num">${{ charge.amount|floatformat:2 }}</td>
+          <td>{{ charge.due_date|date:"d/m/Y" }}</td>
           <td>
-            <span class="badge {% if payment.status == 'paid' %}badge-paid{% else %}badge-pending{% endif %}">
-              {{ payment.get_status_display }}
+            <span class="badge {% if charge.status == 'paid' %}badge-paid{% else %}badge-pending{% endif %}">
+              {{ charge.get_status_display }}
             </span>
           </td>
+          <td>{{ charge.paid_at|date:"d/m/Y"|default:"—" }}</td>
+          <td class="num">{{ charge.reference|default:"—" }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-  <p class="panel-note">Solo se muestran los pagos registrados con este correo.</p>
   {% else %}
   <div class="panel-empty">
-    <h2>Aún no tienes pagos registrados</h2>
-    <p>Cuando pagues un servicio o plan, aparecerá aquí con su referencia y estado.</p>
-    <a class="btn primary" href="{% url 'core:payments' %}">Generar mi referencia de pago</a>
+    <h2>Todavía no hay mensualidades</h2>
+    <p>Cuando se registre tu primer periodo aparecerá aquí con su fecha de pago.</p>
+  </div>
+  {% endif %}
+
+  <h2 class="panel-h2">Datos de tu cuenta</h2>
+  <dl class="panel-data">
+    <div><dt>Nombre</dt><dd>{{ profile.full_name|default:"—" }}</dd></div>
+    <div><dt>Usuario</dt><dd>{{ user.get_username }}</dd></div>
+    <div><dt>Correo</dt><dd>{{ user.email|default:"—" }}</dd></div>
+    <div><dt>Teléfono</dt><dd>{{ profile.phone|default:"—" }}</dd></div>
+    <div><dt>Dirección</dt><dd>{{ profile.address|default:"—" }}</dd></div>
+    <div><dt>Código de cliente</dt><dd>{{ profile.customer_code|default:"—" }}</dd></div>
+    <div><dt>Alta</dt><dd>{{ profile.created_at|date:"d/m/Y" }}</dd></div>
+    <div><dt>Estado</dt><dd>{% if profile.active %}Activo{% else %}Suspendido{% endif %}</dd></div>
+  </dl>
+
+  {% if config.whatsapp or config.email %}
+  <p class="panel-note">
+    ¿Algo no cuadra?
+    {% if config.whatsapp %}Escríbenos por <a href="{{ config.whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
+    {% if config.whatsapp and config.email %} o {% endif %}
+    {% if config.email %}a <a href="mailto:{{ config.email }}">{{ config.email }}</a>{% endif %}.
+  </p>
+  {% endif %}
+
+  {% else %}
+  <div class="panel-empty">
+    <h2>Tu cuenta aún no tiene datos de cliente</h2>
+    <p>Pide a INTERNETWORK que vincule tu usuario con tu contrato para ver aquí tu servicio y tus mensualidades.</p>
   </div>
   {% endif %}
 </section>
