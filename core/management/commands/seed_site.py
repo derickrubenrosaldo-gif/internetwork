@@ -109,7 +109,7 @@ BASE_SITE_CONFIG = {
     "email": "internetwork@gmail.com",
     "phone": "9211200027",
     "whatsapp": "9211200027",
-    "address": "Minatitlán, Veracruz",
+    "address": "Calle Managua 4, Minatitlán, Veracruz",
     "coverage_zones": _coverage_text(),
     "hero_eyebrow": "Conectando tu mundo",
     "hero_title": "Internet sin",
@@ -382,7 +382,7 @@ LEGAL_PAGES = [
         "slug": "aviso-de-privacidad",
         "order": 0,
         "content": """En INTERNETWORK respetamos tu privacidad. Este aviso describe cómo tratamos tus datos personales cuando usas el sitio, nos escribes o registras un pago.
-Responsable: INTERNETWORK, con domicilio en Minatitlán, Veracruz, México. Teléfono y WhatsApp: 9211200027. Falta completar la dirección exacta (calle y número) antes de publicar.
+Responsable: INTERNETWORK, con domicilio en Calle Managua 4, Minatitlán, Veracruz, México. Teléfono y WhatsApp: 9211200027.
 Datos que tratamos: nombre, correo, teléfono, empresa y mensaje (contacto); nombre, correo, teléfono, servicio y monto (pagos); y los pagos asociados a tu correo cuando consultas el panel de clientes.
 Finalidades primarias: atender tu solicitud, registrar y confirmar tu pago, dar seguimiento a la relación comercial y cumplir obligaciones legales.
 Finalidades secundarias: enviarte información sobre nuestros servicios. Puedes oponerte sin afectar la relación principal.
