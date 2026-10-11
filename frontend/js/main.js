@@ -88,9 +88,21 @@ if (REDUCED) {
         revealObserver.unobserve(entry.target);
       });
     },
-    { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
+    /* threshold 0: basta con que asome un píxel. Con umbrales mayores, los
+       bloques más altos que el viewport (o pegados al final de la página)
+       nunca alcanzaban el porcentaje y quedaban invisibles. */
+    { threshold: 0, rootMargin: "0px 0px -10% 0px" }
   );
   revealTargets.forEach((el) => revealObserver.observe(el));
+
+  /* Red de seguridad: pase lo que pase, nada queda oculto. */
+  const revealFailsafe = () => {
+    document
+      .querySelectorAll(".reveal:not(.in)")
+      .forEach((el) => el.classList.add("in"));
+  };
+  window.addEventListener("load", () => setTimeout(revealFailsafe, 2500));
+  setTimeout(revealFailsafe, 6000);
 }
 
 /* Eyebrows: entrada sutil con desplazamiento (los que ya usan .reveal
