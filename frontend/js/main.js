@@ -14,6 +14,7 @@ import { initPaymentForm } from "./paymentForm.js";
 import { initHero3D } from "./hero3d.js";
 import { initStats } from "./stats.js";
 import { initNav } from "./nav.js";
+import { initCoverageFilter } from "./coverageFilter.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -64,6 +65,7 @@ if (header) {
 
 /* Módulos */
 initNav();
+initCoverageFilter();
 const lenis = initSmoothScroll(REDUCED);
 initTextReveal(REDUCED);
 initStory(REDUCED);

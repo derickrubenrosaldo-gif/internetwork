@@ -162,7 +162,7 @@ html { scrollbar-color: #c9d8ee var(--bg); }
   transition: left 0.5s var(--ease);
 }
 .btn:hover::after { left: 130%; }
-.btn.ghost { background: transparent; border: 1px solid var(--border-strong); }
+.btn.ghost { background: transparent; border: 1px solid var(--border-strong); color: var(--blue); }
 .btn.ghost:hover { background: var(--blue); border-color: var(--blue); color: #fff; }
 .btn-light { background: var(--tint); color: var(--blue); }
 .btn-light:hover { background: var(--soft); }
@@ -870,6 +870,28 @@ html.js .d3 { transition-delay: 0.36s; }
   color: var(--text);
   font-size: 0.86rem;
 }
+.coverage-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 22px;
+}
+.coverage-search label { font-weight: 600; color: var(--ink); }
+.coverage-search input {
+  width: min(320px, 100%);
+  padding: 12px 16px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+}
+.coverage-search input:focus { outline: 2px solid var(--blue); outline-offset: 2px; }
+.coverage-count { color: var(--muted); font-size: 0.85rem; }
+.coverage-empty { color: var(--text); margin-bottom: 24px; }
+.coverage-group[hidden], .coverage-group li[hidden] { display: none; }
 .coverage-all { margin-bottom: 36px; }
 .coverage-all summary {
   display: inline-flex;
@@ -971,6 +993,7 @@ html.js .d3 { transition-delay: 0.36s; }
   gap: 2px;
   z-index: 60;
 }
+.nav-drop-menu[hidden] { display: none; }
 .nav-drop-menu a { padding: 10px 12px; border-radius: 10px; color: var(--text); font-weight: 600; }
 .nav-drop-menu a:hover { background: var(--soft); color: var(--blue); }
 

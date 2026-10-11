@@ -12,6 +12,20 @@
       {% for municipality in config.coverage_municipalities %}<li>{{ municipality }}</li>{% endfor %}
     </ul>
 
+    <div class="coverage-search reveal d2">
+      <label for="coverageFilter">Busca tu localidad</label>
+      <input type="search" id="coverageFilter" placeholder="Escribe el nombre…"
+             autocomplete="off" aria-describedby="coverageCount">
+      <span class="coverage-count" id="coverageCount" role="status" aria-live="polite">
+        {{ config.coverage_count }} localidades
+      </span>
+    </div>
+
+    <p class="coverage-empty" id="coverageEmpty" hidden>
+      No encontramos esa localidad. <a href="{% url 'core:home' %}#contacto">Pregúntanos</a>:
+      seguimos ampliando la red.
+    </p>
+
     <details class="coverage-all reveal d3">
       <summary>Ver las {{ config.coverage_count }} localidades</summary>
       <div class="coverage-grid">
