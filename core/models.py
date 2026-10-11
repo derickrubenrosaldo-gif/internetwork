@@ -280,6 +280,16 @@ class StoryStep(models.Model):
         default="",
         help_text="Nombre del archivo en static/lottie/. Ej: step1-signal.json",
     )
+    visual_photo = models.CharField(
+        "Foto (opcional)",
+        max_length=120,
+        blank=True,
+        default="",
+        help_text=(
+            "Nombre del archivo en static/img/ (ej: centro-de-datos.webp). "
+            "Si se define, sustituye a la animación."
+        ),
+    )
     glow_color = models.CharField("Color de brillo", max_length=40, default="rgba(8,124,240,.5)")
     order = models.PositiveIntegerField("Orden", default=0)
 

@@ -469,6 +469,13 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 .visual { display: grid; place-items: center; }
 .visual-item { grid-area: 1 / 1; display: grid; place-items: center; width: 100%; }
 .visual svg, .visual .lottie { width: min(380px, 80%); height: auto; overflow: visible; }
+.visual .story-photo {
+  width: min(520px, 100%);
+  height: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  object-fit: cover;
+}
 .visual .lottie { display: none; aspect-ratio: 1; }
 .visual .lottie.loaded { display: block; }
 .card .ic .lottie-icon { width: 56px; height: 56px; }

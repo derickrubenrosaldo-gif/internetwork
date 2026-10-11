@@ -15,10 +15,16 @@
       <div class="visual" id="visuals" aria-hidden="true">
         {% for step in story_steps %}
         <div class="visual-item" data-index="{{ forloop.counter0 }}">
-          {% if step.visual_lottie %}
-            <div class="lottie" data-lottie="{% static 'lottie/'|add:step.visual_lottie %}" role="img" aria-label="{{ step.label }}"></div>
+          {% if step.visual_photo %}
+            <img class="story-photo" src="{% static 'img/'|add:step.visual_photo %}"
+                 width="900" height="600" loading="lazy" decoding="async"
+                 alt="{{ step.label }}">
+          {% else %}
+            {% if step.visual_lottie %}
+              <div class="lottie" data-lottie="{% static 'lottie/'|add:step.visual_lottie %}" role="img" aria-label="{{ step.label }}"></div>
+            {% endif %}
+            {{ step.visual_svg|safe }}
           {% endif %}
-          {{ step.visual_svg|safe }}
         </div>
         {% endfor %}
       </div>
