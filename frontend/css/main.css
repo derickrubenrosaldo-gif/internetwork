@@ -467,7 +467,7 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
   gap: 40px;
   align-items: center;
 }
-.steps { position: relative; height: 340px; }
+.steps { position: relative; height: 420px; }
 .step {
   position: absolute; inset: 0;
   display: flex; flex-direction: column; justify-content: center;
@@ -477,7 +477,7 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 }
 .step.active { opacity: 1; transform: none; pointer-events: auto; }
 .step h2 {
-  font-size: clamp(2.2rem, 5.6vw, 4.4rem);
+  font-size: clamp(1.9rem, 4.4vw, 3.4rem);
   line-height: 1.02;
   letter-spacing: -0.045em;
   margin: 14px 0 18px;
@@ -516,8 +516,8 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
   .visual svg, .visual .lottie { width: 150px; }
   /* Altura suficiente para el texto más largo y tipografía menor: antes el
      h2 se recortaba contra el overflow:hidden de la escena. */
-  .steps { height: 400px; }
-  .step h2 { font-size: clamp(1.7rem, 7.5vw, 2.5rem); }
+  .steps { height: 470px; }
+  .step h2 { font-size: clamp(1.6rem, 7vw, 2.3rem); }
   .step p { font-size: 1rem; }
 }
 
@@ -864,7 +864,18 @@ html.js .d3 { transition-delay: 0.36s; }
   list-style: none;
   margin-bottom: 22px;
 }
+@media (max-width: 760px) {
+  /* En móvil 25 chips ocupaban media pantalla: pasan a una fila deslizable. */
+  .coverage-pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+}
 .coverage-pills li {
+  flex: none;
   padding: 7px 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
