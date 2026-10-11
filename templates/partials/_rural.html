@@ -7,10 +7,10 @@
     <h2 class="reveal d1">{{ config.rural_title }} <span class="grad">{{ config.rural_title_highlight }}</span></h2>
     <p class="reveal d2">{{ config.rural_description }}</p>
     <div class="pills reveal d2">
-      {% for zone in config.zones_list %}<span>{{ zone }}</span>{% endfor %}
       <span>Hogares y comercios</span>
       <span>Instituciones</span>
       <span>Asesoría de cobertura</span>
+      <a href="{% url 'core:home' %}#cobertura">{{ config.coverage_count }} localidades con cobertura</a>
     </div>
     <a class="btn reveal d3" href="#contacto">Contacto</a>
   </div>

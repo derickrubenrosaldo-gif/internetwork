@@ -593,7 +593,8 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 }
 .rural p { font-size: 1.2rem; color: var(--text); max-width: 620px; margin: 0 auto 30px; }
 .pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 34px; }
-.pills span {
+.pills a { color: var(--blue); font-weight: 600; }
+.pills span, .pills a {
   padding: 9px 16px;
   border: 1px solid var(--line);
   border-radius: 999px;
