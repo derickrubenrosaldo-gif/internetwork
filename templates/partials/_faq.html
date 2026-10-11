@@ -1,0 +1,55 @@
+<!-- PREGUNTAS FRECUENTES: solo hechos verificables del negocio -->
+<section class="faq" id="faq" aria-label="Preguntas frecuentes">
+  <div class="wrap">
+    <h2 class="reveal d1">Preguntas <span class="grad">frecuentes.</span></h2>
+    <div class="faq-list reveal d2">
+      <div class="faq-item">
+        <h3>¿Qué planes y precios tienen?</h3>
+        <p>
+          {% for plan in plans %}
+            {{ plan.name }}: {{ plan.price }}{{ plan.period }}{% if not forloop.last %} · {% endif %}
+          {% empty %}
+            Consúltanos los planes disponibles y su precio.
+          {% endfor %}
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>¿Dónde dan servicio?</h3>
+        <p>
+          Cubrimos {{ config.coverage_count }} localidades en {{ config.coverage_municipalities|length }} municipios
+          del sur de Veracruz. <a href="{% url 'core:home' %}#cobertura">Consulta la lista de localidades</a>.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>¿Cómo pago mi servicio?</h3>
+        <p>
+          Genera tu referencia en <a href="{% url 'core:payments' %}">la página de pagos</a> y haz la
+          transferencia{% if config.payment_instructions %} ({{ config.payment_instructions|truncatechars:60 }}){% endif %}.
+          Confirmamos el pago en breve.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>¿Cómo consulto mis pagos?</h3>
+        <p>
+          Entra a <a href="{% url 'core:client_panel' %}">tu panel de clientes</a>: te enviamos un enlace
+          de acceso a tu correo y ahí ves el estado de cada pago.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>¿Cómo los contacto?</h3>
+        <p>
+          {% if config.phone %}Llámanos al {{ config.phone }}.{% endif %}
+          {% if config.whatsapp %}WhatsApp: <a href="{{ config.whatsapp_url }}" target="_blank" rel="noopener">{{ config.whatsapp }}</a>.{% endif %}
+          {% if config.email %}Escríbenos a <a href="mailto:{{ config.email }}">{{ config.email }}</a>.{% endif %}
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>¿Atienden negocios y comunidades?</h3>
+        <p>
+          Sí: hogares, comercios, instituciones y comunidades. Tenemos internet dedicado para
+          operaciones que necesitan ancho de banda exclusivo.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

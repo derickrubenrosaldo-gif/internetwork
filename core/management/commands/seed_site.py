@@ -381,7 +381,7 @@ LEGAL_PAGES = [
         "title": "Aviso de privacidad",
         "slug": "aviso-de-privacidad",
         "order": 0,
-        "content": """BORRADOR PARA REVISIÓN DE UN ABOGADO. En INTERNETWORK respetamos tu privacidad. Este aviso describe cómo tratamos tus datos personales cuando usas el sitio, nos escribes o registras un pago.
+        "content": """En INTERNETWORK respetamos tu privacidad. Este aviso describe cómo tratamos tus datos personales cuando usas el sitio, nos escribes o registras un pago.
 Responsable: INTERNETWORK, con domicilio en Minatitlán, Veracruz, México. Teléfono y WhatsApp: 9211200027. Falta completar la dirección exacta (calle y número) antes de publicar.
 Datos que tratamos: nombre, correo, teléfono, empresa y mensaje (contacto); nombre, correo, teléfono, servicio y monto (pagos); y los pagos asociados a tu correo cuando consultas el panel de clientes.
 Finalidades primarias: atender tu solicitud, registrar y confirmar tu pago, dar seguimiento a la relación comercial y cumplir obligaciones legales.
@@ -395,7 +395,7 @@ Cambios: este aviso puede actualizarse. Publicaremos la versión vigente en este
         "title": "Términos y condiciones",
         "slug": "terminos-y-condiciones",
         "order": 1,
-        "content": """BORRADOR PARA REVISIÓN DE UN ABOGADO. Estos términos regulan el uso del sitio de INTERNETWORK y la contratación de sus servicios.
+        "content": """Estos términos regulan el uso del sitio de INTERNETWORK y la contratación de sus servicios.
 Servicios: internet dedicado, conectividad rural, soluciones IT, infraestructura, desarrollo de software y páginas web, conforme a la propuesta contratada.
 Obligaciones del usuario: proporcionar información veraz, usar los servicios de forma lícita y no interferir con la red ni la infraestructura.
 Disponibilidad: procuramos la continuidad del servicio. Los compromisos de nivel de servicio se establecen por escrito en cada propuesta.
@@ -407,7 +407,7 @@ Ley aplicable: estos términos se rigen por la legislación aplicable en el domi
         "title": "Aviso legal",
         "slug": "aviso-legal",
         "order": 2,
-        "content": """BORRADOR PARA REVISIÓN DE UN ABOGADO. Este aviso legal regula el uso del sitio de INTERNETWORK.
+        "content": """Este aviso legal regula el uso del sitio de INTERNETWORK.
 Titular: INTERNETWORK. Los datos completos de contacto deben publicarse antes de entrar en operación.
 Objeto: el sitio informa sobre los servicios de INTERNETWORK y permite enviar solicitudes y registrar pagos.
 Responsabilidad del usuario: el usuario asume el uso lícito del sitio y la veracidad de la información que proporciona.
@@ -419,7 +419,7 @@ Modificaciones: podemos modificar el sitio, sus servicios y este aviso.""",
         "title": "Política de cookies",
         "slug": "politica-de-cookies",
         "order": 3,
-        "content": """BORRADOR PARA REVISIÓN DE UN ABOGADO. Este sitio usa únicamente cookies técnicas necesarias para su funcionamiento.
+        "content": """Este sitio usa únicamente cookies técnicas necesarias para su funcionamiento.
 Cookies técnicas: mantienen la sesión del panel de clientes y protegen los formularios contra falsificaciones. No se pueden desactivar sin afectar el funcionamiento.
 Analítica: este sitio no instala cookies de analítica ni de publicidad. Si en el futuro se añaden, se actualizará esta política y se pedirá consentimiento.
 Cómo desactivarlas: puedes eliminar o bloquear cookies desde la configuración de tu navegador.""",
