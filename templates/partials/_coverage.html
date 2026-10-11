@@ -1,4 +1,4 @@
-<!-- COBERTURA: localidades reales agrupadas por municipio -->
+<!-- COBERTURA: resumen por municipio y listado completo plegable -->
 {% if config.coverage_count %}
 <section class="coverage" id="cobertura" aria-label="Cobertura">
   <div class="wrap">
@@ -8,16 +8,23 @@
       Si no ves la tuya, pregúntanos: seguimos ampliando la red.
     </p>
 
-    <div class="coverage-grid reveal d2">
-      {% for group in config.coverage_grouped %}
-      <div class="coverage-group">
-        <h3>{{ group.municipality }}</h3>
-        <ul>
-          {% for locality in group.localities %}<li>{{ locality }}</li>{% endfor %}
-        </ul>
+    <ul class="coverage-pills reveal d2">
+      {% for municipality in config.coverage_municipalities %}<li>{{ municipality }}</li>{% endfor %}
+    </ul>
+
+    <details class="coverage-all reveal d3">
+      <summary>Ver las {{ config.coverage_count }} localidades</summary>
+      <div class="coverage-grid">
+        {% for group in config.coverage_grouped %}
+        <div class="coverage-group">
+          <h3>{{ group.municipality }}</h3>
+          <ul>
+            {% for locality in group.localities %}<li>{{ locality }}</li>{% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
-    </div>
+    </details>
 
     <a class="btn reveal d3" href="{% url 'core:home' %}#contacto">¿Llegan a mi zona?</a>
   </div>

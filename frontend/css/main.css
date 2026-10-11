@@ -326,9 +326,9 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
   background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0) 25%, var(--bg) 88%);
   pointer-events: none;
 }
-.hero-in { position: relative; z-index: 2; width: min(980px, 92%); }
+.hero-in { position: relative; z-index: 2; width: min(var(--container), 92%); }
 .hero h1 {
-  font-size: clamp(2.8rem, 8.5vw, 7rem);
+  font-size: clamp(2.6rem, 7.2vw, 6rem);
   line-height: 1;
   letter-spacing: -0.05em;
   font-weight: 900;
@@ -854,12 +854,45 @@ html.js .d3 { transition-delay: 0.36s; }
   text-wrap: balance;
 }
 .coverage-sub { color: var(--text); max-width: 60ch; margin: 0 auto 40px; }
+.coverage-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  list-style: none;
+  margin-bottom: 22px;
+}
+.coverage-pills li {
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text);
+  font-size: 0.86rem;
+}
+.coverage-all { margin-bottom: 36px; }
+.coverage-all summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 10px 18px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--blue);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.coverage-all summary::-webkit-details-marker { display: none; }
+.coverage-all summary::after { content: "▾"; margin-left: 8px; }
+.coverage-all[open] summary::after { content: "▴"; }
+.coverage-all[open] summary { margin-bottom: 28px; }
 .coverage-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 24px 28px;
   text-align: left;
-  margin-bottom: 40px;
+  margin-bottom: 8px;
 }
 .coverage-group h3 {
   font-size: 0.95rem;
@@ -881,17 +914,21 @@ html.js .d3 { transition-delay: 0.36s; }
 .nav { position: relative; }
 .nav-toggle {
   display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   width: 44px; height: 44px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: #fff;
   cursor: pointer;
-  padding: 11px 10px;
+  padding: 0;
 }
 .nav-toggle span {
   display: block;
+  width: 20px;
   height: 2px;
-  margin: 4px 0;
   background: var(--ink);
   border-radius: 2px;
   transition: transform 0.25s var(--ease), opacity 0.2s;
