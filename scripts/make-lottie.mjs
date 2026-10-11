@@ -8,8 +8,10 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "static", "lottie");
 mkdirSync(outDir, { recursive: true });
 
-const CYAN = [0.039, 0.486, 0.745];
-const BLUE = [0.043, 0.388, 0.839];
+/* Paleta del sistema de diseño (blanco + azul).
+   SKY y BLUE son azules de marca con contraste suficiente sobre blanco. */
+const BLUE = [0.043, 0.373, 0.847]; // #0b5fd8 — azul de marca
+const SKY = [0.102, 0.482, 0.961]; // #1a7bf5
 
 /* ---------- utilidades de formato Lottie ---------- */
 const EASE_3 = { i: { x: [0.667, 0.667, 0.667], y: [1, 1, 1] }, o: { x: [0.333, 0.333, 0.333], y: [0, 0, 0] } };
@@ -55,11 +57,11 @@ const path = (name, vertices, closed = true) => ({
   nm: name, ix: 1,
 });
 
-const stroke = (color = CYAN, width = 5, opacity = 100) => ({
+const stroke = (color = BLUE, width = 5, opacity = 100) => ({
   ty: "st", c: fixed(color), o: fixed([opacity]), w: fixed(width), lc: 2, lj: 2, bm: 0, nm: "trazo", ix: 1,
 });
 
-const fill = (color = CYAN, opacity = 100) => ({
+const fill = (color = BLUE, opacity = 100) => ({
   ty: "fl", c: fixed(color), o: fixed([opacity]), r: 1, bm: 0, nm: "relleno", ix: 1,
 });
 
@@ -96,7 +98,7 @@ function signal(size) {
     return group(
       [
         ellipse(`anillo${i}`, [base, base]),
-        stroke(CYAN, 5 * s),
+        stroke(SKY, 5 * s),
         transform({
           o: animated([[0, [55 - i * 12]], [30, [95 - i * 12]], [60, [55 - i * 12]]]),
           s: animated([
@@ -127,7 +129,7 @@ function dashboard(size) {
     return group(
       [
         rect(`barra${i}`, [16 * s, h], [0, h / 2], 5 * s),
-        fill(i % 2 ? CYAN : BLUE),
+        fill(i % 2 ? SKY : BLUE),
         transform({
           p: animated([
             [0, [x * 0.4, 40 * s, 0]],
@@ -144,7 +146,7 @@ function dashboard(size) {
   const line = group(
     [
       path("tendencia", [[-48 * s, 22 * s], [-16 * s, 4 * s], [16 * s, 12 * s], [48 * s, -18 * s]], false),
-      stroke(CYAN, 4 * s),
+      stroke(SKY, 4 * s),
       transform({ o: animated([[0, [0]], [20, [100]]]) }),
     ],
     "tendencia"
@@ -166,7 +168,7 @@ function mountain(size) {
     group(
       [
         path("montana-cercana", [[-30 * s, 42 * s], [12 * s, -14 * s], [54 * s, 42 * s]], false),
-        stroke(CYAN, 5 * s),
+        stroke(SKY, 5 * s),
       ],
       "montana-cercana"
     ),
@@ -176,7 +178,7 @@ function mountain(size) {
     return group(
       [
         path(`onda${i}`, [[-r, 0], [-r * 0.7, -r * 0.7], [0, -r], [r * 0.7, -r * 0.7], [r, 0]], false),
-        stroke(CYAN, 4 * s),
+        stroke(SKY, 4 * s),
         transform({
           o: animated([[0, [30 - i * 10]], [30, [90 - i * 10]], [60, [30 - i * 10]]]),
           p: animated([[0, [0, 34 * s, 0]], [30, [0, 30 * s, 0]], [60, [0, 34 * s, 0]]]),
@@ -186,7 +188,7 @@ function mountain(size) {
     );
   });
   const base = group(
-    [path("base", [[-56 * s, 44 * s], [56 * s, 44 * s]], false), stroke(CYAN, 3 * s, 60)],
+    [path("base", [[-56 * s, 44 * s], [56 * s, 44 * s]], false), stroke(SKY, 3 * s, 60)],
     "base"
   );
   return lottie({ w: size, h: size, frames: 60, shapes: [...hills, ...waves, base], name: "montana" });
@@ -208,7 +210,7 @@ function code(size) {
           ],
           false
         ),
-        stroke(CYAN, 9 * s),
+        stroke(SKY, 9 * s),
       ],
       `llave-${sign}`
     );

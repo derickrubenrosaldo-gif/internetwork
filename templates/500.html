@@ -5,15 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>INTERNETWORK | Error temporal</title>
   <style>
-    :root{--bg:#ffffff;--bg2:#eef5fd;--blue:#0b63d6;--cyan:#0a7cbe;--text:#0b2138;--muted:#5b7391;--line:rgba(11,33,56,.12)}
+    :root{--bg:#ffffff;--soft:#f4f8ff;--tint:#e8f1ff;--ink:#0a2540;--text:#1b3358;--muted:#566b88;--blue:#0b5fd8;--blue-d:#0847a6;--sky:#1a7bf5;--line:rgba(10,37,64,.10)}
     *{box-sizing:border-box;margin:0;padding:0}
     body{background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;min-height:100vh;display:grid;place-items:center;text-align:center;padding:8vh 5%}
-    .eyebrow{font-size:.78rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan)}
-    h1{font-size:clamp(2.2rem,7vw,4.6rem);line-height:1.05;letter-spacing:-.05em;font-weight:900;margin:16px 0 18px}
-    .grad{background:linear-gradient(90deg,#0aa2df,#0b5cd6);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .eyebrow{font-size:.78rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--blue)}
+    h1{font-size:clamp(2.2rem,7vw,4.6rem);line-height:1.05;letter-spacing:-.05em;font-weight:900;margin:16px 0 18px;color:var(--ink)}
+    .grad{background:linear-gradient(90deg,var(--sky),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
     p{color:var(--muted);max-width:520px;margin:0 auto 30px;font-size:1.08rem}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border-radius:999px;background:var(--blue);color:#fff;font-weight:700;border:0;cursor:pointer;font-size:1rem;text-decoration:none}
-    .dot{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--blue);display:inline-block;vertical-align:-3px;margin-right:8px}
+    .btn:hover{background:var(--blue-d)}
+    .dot{width:20px;height:20px;border-radius:50%;border:2.5px solid #fff;display:inline-block;vertical-align:-3px;margin-right:8px}
   </style>
 </head>
 <body>

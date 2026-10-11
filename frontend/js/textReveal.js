@@ -7,6 +7,8 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+import { token } from "./theme.js";
+
 export function initTextReveal(reduced) {
   if (reduced) {
     /* Todo visible y estático */
@@ -32,7 +34,7 @@ function initStatement() {
 
   const words = statement.querySelectorAll(".w");
   gsap.to(words, {
-    color: "#0b2138", /* --text: mismo valor que la paleta CSS */
+    color: token("--ink", "#0a2540"), /* lee el token de diseño */
     stagger: 0.08,
     ease: "none",
     scrollTrigger: {

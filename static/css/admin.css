@@ -4,7 +4,7 @@
 
 /* ---------- LOGIN ---------- */
 body.login {
-  background: linear-gradient(155deg, #071a36 0%, #0a3570 52%, #0b63d6 115%);
+  background: linear-gradient(160deg, #ffffff 0%, #f4f8ff 60%, #e8f1ff 100%);
   min-height: 100vh;
 }
 body.login #header,

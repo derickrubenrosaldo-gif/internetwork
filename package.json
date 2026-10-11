@@ -8,9 +8,10 @@
     "dev": "concurrently \"npm run dev:js\" \"npm run dev:css\"",
     "dev:js": "esbuild frontend/js/main.js --bundle --format=esm --splitting --outdir=static/js/dist --watch --target=es2020 --log-level=info",
     "dev:css": "esbuild frontend/css/main.css --bundle --outfile=static/css/dist/main.css --watch --log-level=info --loader:.woff2=file",
-    "build": "npm run build:js && npm run build:css",
+    "build": "npm run build:js && npm run build:css && npm run a11y:contrast",
     "build:js": "esbuild frontend/js/main.js --bundle --format=esm --splitting --outdir=static/js/dist --minify --target=es2020",
     "build:css": "esbuild frontend/css/main.css --bundle --minify --outfile=static/css/dist/main.css --loader:.woff2=file",
+    "a11y:contrast": "node scripts/check-contrast.mjs",
     "lottie": "node scripts/make-lottie.mjs"
   },
   "dependencies": {

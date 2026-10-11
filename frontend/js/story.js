@@ -4,11 +4,13 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+import { token } from "./theme.js";
+
 let lottieItems = [];
 
-/* Colores del contador de pasos (mismos valores que la paleta CSS) */
-const DOT_IDLE = "rgba(11,33,56,.16)";
-const DOT_ACTIVE = "#0b63d6";
+/* Colores del contador de pasos (leídos de la paleta CSS) */
+const DOT_IDLE = token("--tint", "#e8f1ff");
+const DOT_ACTIVE = token("--blue", "#0b5fd8");
 
 export function initStory(reduced) {
   const story = document.querySelector(".story");
