@@ -35,6 +35,9 @@
   --shadow-2: 0 2px 4px rgba(10, 37, 64, 0.08), 0 24px 56px -28px rgba(10, 37, 64, 0.28);
   /* Radios */
   --radius-sm: 16px;
+  /* Contenedor único y ritmo vertical de secciones (72-128 px) */
+  --container: 1120px;
+  --section-y: clamp(72px, 12vh, 128px);
   --radius-lg: 24px;
   --font: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   --font-display: "Archivo Variable", "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
@@ -46,6 +49,17 @@ h1, h2, h3, .brand, .stat b, .panel-title, .panel-empty h2 {
   font-family: var(--font-display);
 }
 h1, h2, h3 { text-wrap: balance; }
+
+/* Utilidad de accesibilidad: visible solo para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -250,7 +264,7 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
   background: var(--cyan);
 }
 .nav {
-  width: min(1100px, 92%);
+  width: min(var(--container), 92%);
   margin: auto;
   height: 56px;
   display: flex;
@@ -330,7 +344,7 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 /* ============================================================
    MANIFIESTO
    ============================================================ */
-.statement { padding: 22vh 0; text-align: center; }
+.statement { padding: calc(var(--section-y) * 1.4) 0; text-align: center; }
 .statement p {
   position: relative;
   width: min(980px, 90%);
@@ -384,7 +398,7 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 /* ============================================================
    BANDA DE RESULTADOS
    ============================================================ */
-.stats { padding: 12vh 0; }
+.stats { padding: calc(var(--section-y) * 0.8) 0; }
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -407,7 +421,7 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 
 /* Divisor de sección con punto luminoso */
 .divider {
-  width: min(1100px, 92%);
+  width: min(var(--container), 92%);
   margin: 0 auto;
   height: 1px;
   position: relative;
@@ -444,7 +458,7 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 }
 .story-grid {
   position: relative;
-  width: min(1100px, 92%);
+  width: min(var(--container), 92%);
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   gap: 40px;
@@ -501,7 +515,7 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
    ============================================================ */
 .hscroll { position: relative; height: 420vh; background: linear-gradient(var(--bg), var(--soft)); }
 .h-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
-.h-head { width: min(1100px, 92%); margin: 0 auto 36px; }
+.h-head { width: min(var(--container), 92%); margin: 0 auto 36px; }
 .h-head h2 { font-size: clamp(2rem, 5vw, 3.6rem); letter-spacing: -0.04em; line-height: 1.05; margin-top: 10px; }
 .track { display: flex; gap: 22px; padding: 0 4vw; }
 .card {
@@ -552,7 +566,7 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
   place-items: center;
   text-align: center;
   overflow: hidden;
-  padding: 20vh 0;
+  padding: var(--section-y) 0;
   background: linear-gradient(#eaf3ff, #d8eaff 60%, #ffffff);
 }
 .hills { position: absolute; left: 0; right: 0; bottom: 0; height: 60%; }
@@ -578,8 +592,8 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 /* ============================================================
    POR QUÉ INTERNETWORK
    ============================================================ */
-.why { padding: 18vh 0; }
-.wrap { width: min(1100px, 92%); margin: auto; }
+.why { padding: var(--section-y) 0; }
+.wrap { width: min(var(--container), 92%); margin: auto; }
 .why h2 {
   font-size: clamp(2rem, 5vw, 3.8rem);
   letter-spacing: -0.04em;
@@ -610,7 +624,7 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 /* ============================================================
    CONTACTO
    ============================================================ */
-.contact { padding: 16vh 0; background: radial-gradient(ellipse at 50% 0, var(--tint), var(--bg) 70%); }
+.contact { padding: var(--section-y) 0; background: radial-gradient(ellipse at 50% 0, var(--tint), var(--bg) 70%); }
 .contact-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: start; }
 .contact h2 {
   font-size: clamp(2.2rem, 5.4vw, 4.2rem);
@@ -704,7 +718,7 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
   pointer-events: none;
   user-select: none;
 }
-.foot { width: min(1100px, 92%); margin: auto; display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; align-items: center; position: relative; z-index: 2; }
+.foot { width: min(var(--container), 92%); margin: auto; display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; align-items: center; position: relative; z-index: 2; }
 .foot .socials { display: flex; gap: 14px; }
 .foot .socials a:hover { color: #fff; }
 
@@ -766,13 +780,13 @@ html.js .d3 { transition-delay: 0.36s; }
   .marquee-track span { gap: 24px; }
   html.js .reveal { opacity: 1; transform: none; transition: none; }
   .story { height: auto; }
-  .story-sticky { position: static; height: auto; padding: 15vh 0; }
+  .story-sticky { position: static; height: auto; padding: var(--section-y) 0; }
   .steps { height: auto; margin-bottom: 2rem; }
   .step { position: static; opacity: 1; transform: none; pointer-events: auto; margin-bottom: 4rem; }
   .visual-item { grid-area: auto; }
   .visual svg, .visual .lottie { display: block; }
   .hscroll { height: auto; }
-  .h-sticky { position: static; height: auto; display: block; padding: 15vh 0; }
+  .h-sticky { position: static; height: auto; display: block; padding: var(--section-y) 0; }
   .track { flex-wrap: wrap; }
   .card { margin-bottom: 22px; }
   .hills { transform: none !important; }
@@ -781,7 +795,7 @@ html.js .d3 { transition-delay: 0.36s; }
 /* ============================================================
    PREGUNTAS FRECUENTES
    ============================================================ */
-.faq { padding: 16vh 0; }
+.faq { padding: var(--section-y) 0; }
 .faq .wrap { text-align: center; }
 .faq h2 {
   font-size: clamp(2rem, 4.6vw, 3.4rem);
@@ -827,7 +841,7 @@ html.js .d3 { transition-delay: 0.36s; }
 /* ============================================================
    COBERTURA
    ============================================================ */
-.coverage { padding: 16vh 0; background: var(--soft); }
+.coverage { padding: var(--section-y) 0; background: var(--soft); }
 .coverage .wrap { text-align: center; }
 .coverage h2 {
   font-size: clamp(2rem, 4.6vw, 3.4rem);
@@ -1219,7 +1233,7 @@ html.js .d3 { transition-delay: 0.36s; }
    ============================================================ */
 .plans {
   position: relative;
-  padding: 18vh 0 16vh;
+  padding: var(--section-y) 0;
   background: radial-gradient(ellipse at 50% 0, var(--tint), var(--bg) 70%);
   overflow: hidden;
 }
@@ -1312,7 +1326,7 @@ html.js .d3 { transition-delay: 0.36s; }
 /* ============================================================
    INTERNET DEDICADO
    ============================================================ */
-.dedicated { padding: 16vh 0; background: var(--navy); color: var(--navy-text); }
+.dedicated { padding: var(--section-y) 0; background: var(--navy); color: var(--navy-text); }
 .dedicated-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1340,7 +1354,7 @@ html.js .d3 { transition-delay: 0.36s; }
    PÁGINA DE PAGOS
    ============================================================ */
 .payments {
-  padding: 16vh 0 14vh;
+  padding: var(--section-y) 0;
   background: radial-gradient(ellipse at 50% 0, var(--tint), var(--bg) 70%);
 }
 .payments-in { text-align: center; }
@@ -1403,7 +1417,7 @@ html.js .d3 { transition-delay: 0.36s; }
 /* ============================================================
    PÁGINAS LEGALES
    ============================================================ */
-.legal { padding: 16vh 0 12vh; }
+.legal { padding: var(--section-y) 0 calc(var(--section-y) * 0.75); }
 .legal-in { max-width: 780px; }
 .legal h1 { font-size: clamp(2rem, 4.4vw, 3rem); letter-spacing: -0.04em; line-height: 1.1; margin: 10px 0 10px; }
 .legal-date { color: var(--muted); font-size: 0.88rem; margin-bottom: 34px; }
@@ -1415,7 +1429,7 @@ html.js .d3 { transition-delay: 0.36s; }
   flex-wrap: wrap;
   gap: 8px 22px;
   justify-content: center;
-  width: min(1100px, 92%);
+  width: min(var(--container), 92%);
   margin: 26px auto 0;
   padding-top: 22px;
   border-top: 1px solid var(--line);
