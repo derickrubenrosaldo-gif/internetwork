@@ -3,18 +3,28 @@
 import csv
 import json
 import logging
+import secrets
 from urllib.parse import quote
 
 from django.conf import settings
 from django.core.cache import cache
 from django.core.mail import send_mail
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.views.generic import TemplateView
 
-from .forms import LeadForm
-from .models import Differentiator, Service, SiteConfig, StoryStep
+from .forms import LeadForm, PaymentForm
+from .models import (
+    Differentiator,
+    LegalPage,
+    Payment,
+    Plan,
+    Service,
+    SiteConfig,
+    StoryStep,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +39,7 @@ class HomeView(TemplateView):
             {
                 "config": config,
                 "services": Service.objects.filter(active=True),
+                "plans": Plan.objects.filter(active=True),
                 "story_steps": StoryStep.objects.all(),
                 "differentiators": Differentiator.objects.all(),
                 "form": LeadForm(),
@@ -138,6 +149,192 @@ def submit_lead(request):
             "whatsapp_url": whatsapp_url,
         }
     )
+
+
+def legal_page(request, slug):
+    """Páginas legales: aviso de privacidad, términos, aviso legal, cookies."""
+    page = get_object_or_404(LegalPage, slug=slug, active=True)
+    return render(
+        request,
+        "legal.html",
+        {
+            "page": page,
+            "config": SiteConfig.get_solo(),
+            "title": f"{page.title} | INTERNETWORK",
+            "meta_description": page.content[:155],
+            "canonical": request.build_absolute_uri(page.get_absolute_url()),
+        },
+    )
+
+
+def payments_page(request):
+    """Página de pagos: métodos y formulario de registro."""
+    config = SiteConfig.get_solo()
+    return render(
+        request,
+        "payments.html",
+        {
+            "config": config,
+            "form": PaymentForm(),
+            "title": "Pagos | INTERNETWORK",
+            "meta_description": (
+                "Realiza el pago de tus servicios INTERNETWORK: "
+                "transferencia bancaria, tarjeta o efectivo."
+            ),
+            "canonical": request.build_absolute_uri("/pagos/"),
+        },
+    )
+
+
+def submit_payment(request):
+    """Recepción del formulario de pagos (fetch + JSON)."""
+    if request.method != "POST":
+        return JsonResponse({"status": "error", "message": "Método no permitido."}, status=405)
+
+    # Honeypot: si un bot rellena el campo oculto, respondemos "éxito" sin guardar.
+    if request.POST.get("honeypot"):
+        return JsonResponse({"status": "ok", "message": "Gracias."})
+
+    ip = request.META.get("REMOTE_ADDR", "")
+
+    # Rate limiting por IP con caché
+    cache_key = f"payment_rate:{ip}"
+    attempts = cache.get(cache_key, 0)
+    if attempts >= settings.RATE_LIMIT_REQUESTS:
+        return JsonResponse(
+            {"status": "error", "message": "Demasiados intentos. Intenta de nuevo en unos minutos."},
+            status=429,
+        )
+    cache.set(cache_key, attempts + 1, settings.RATE_LIMIT_SECONDS)
+
+    form = PaymentForm(request.POST)
+    if not form.is_valid():
+        return JsonResponse(
+            {"status": "error", "message": "Revisa los campos marcados.", "errors": form.errors},
+            status=400,
+        )
+
+    payment = form.save(commit=False)
+    payment.ip_address = ip
+    payment.reference = _new_reference()
+    payment.save()
+
+    return JsonResponse(
+        {
+            "status": "ok",
+            "message": "Pago registrado. Usa tu referencia al transferir.",
+            "reference": payment.reference,
+            "instructions": SiteConfig.get_solo().payment_instructions,
+        }
+    )
+
+
+def _new_reference():
+    """Referencia única de pago: INT-AAAAMMDD-XXXX."""
+    today = timezone.now().strftime("%Y%m%d")
+    for _ in range(5):
+        reference = f"INT-{today}-{secrets.token_hex(2).upper()}"
+        if not Payment.objects.filter(reference=reference).exists():
+            return reference
+    return f"INT-{today}-{secrets.token_hex(6).upper()}"
+
+
+def payments_to_csv(queryset):
+    response = HttpResponse(content_type="text/csv; charset=utf-8")
+    response["Content-Disposition"] = 'attachment; filename="pagos.csv"'
+    writer = csv.writer(response)
+    writer.writerow(
+        [
+            "Fecha",
+            "Referencia",
+            "Nombre",
+            "Correo",
+            "Teléfono",
+            "Servicio o plan",
+            "Monto",
+            "Método",
+            "Estado",
+            "IP",
+        ]
+    )
+    for payment in queryset:
+        writer.writerow(
+            [
+                payment.created_at.isoformat(),
+                payment.reference,
+                payment.name,
+                payment.email,
+                payment.phone,
+                payment.service,
+                payment.amount,
+                payment.get_method_display(),
+                payment.get_status_display(),
+                payment.ip_address or "",
+            ]
+        )
+    return response
+
+
+def client_panel(request):
+    """Panel de clientes: consulta de pagos con correo + referencia."""
+    config = SiteConfig.get_solo()
+    email = request.session.get("client_email")
+    if not email:
+        return render(
+            request,
+            "panel_login.html",
+            {
+                "config": config,
+                "title": "Panel de clientes | INTERNETWORK",
+                "meta_description": "Consulta el estado de tus pagos y servicios.",
+                "canonical": request.build_absolute_uri("/panel/"),
+            },
+        )
+    payments = Payment.objects.filter(email__iexact=email).order_by("-created_at")
+    paid = payments.filter(status="paid")
+    pending = payments.filter(status="pending")
+    return render(
+        request,
+        "panel.html",
+        {
+            "config": config,
+            "payments": payments,
+            "email": email,
+            "total_paid": sum(p.amount for p in paid),
+            "total_pending": sum(p.amount for p in pending),
+            "title": "Mi panel | INTERNETWORK",
+            "meta_description": "Consulta el estado de tus pagos y servicios.",
+            "canonical": request.build_absolute_uri("/panel/"),
+        },
+    )
+
+
+def client_login(request):
+    """Acceso al panel de clientes (correo + referencia de pago)."""
+    if request.method != "POST":
+        return redirect("core:client_panel")
+    email = request.POST.get("email", "").strip().lower()
+    reference = request.POST.get("reference", "").strip().upper()
+    if Payment.objects.filter(email__iexact=email, reference__iexact=reference).exists():
+        request.session["client_email"] = email
+        return redirect("core:client_panel")
+    return render(
+        request,
+        "panel_login.html",
+        {
+            "config": SiteConfig.get_solo(),
+            "error": "No encontramos ese pago. Revisa tu correo y tu referencia.",
+            "title": "Panel de clientes | INTERNETWORK",
+            "meta_description": "Consulta el estado de tus pagos y servicios.",
+            "canonical": request.build_absolute_uri("/panel/"),
+        },
+    )
+
+
+def client_logout(request):
+    """Cerrar sesión del panel de clientes."""
+    request.session.pop("client_email", None)
+    return redirect("core:client_panel")
 
 
 def robots_txt(request):

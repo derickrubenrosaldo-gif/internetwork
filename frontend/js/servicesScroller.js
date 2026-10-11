@@ -1,4 +1,6 @@
-/* Banda horizontal de servicios: pin + scrub + snap suave por tarjeta. */
+/* Banda horizontal de servicios: escena fija (sticky CSS) + scrub + snap.
+   La altura de la sección se calcula en JS para que el recorrido horizontal
+   sea 1:1 con el scroll (si no, la sección queda desierta o demasiado lenta). */
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -23,18 +25,23 @@ export function initServicesScroller(reduced) {
   if (cards.length < 2) return;
 
   const amount = () =>
-    track.scrollWidth - window.innerWidth + window.innerWidth * 0.08;
+    Math.max(0, track.scrollWidth - window.innerWidth + window.innerWidth * 0.08);
+
+  /* Distancia de scroll = una pantalla + lo que mide el recorrido horizontal */
+  const setHeight = () => {
+    section.style.height = `${window.innerHeight + amount()}px`;
+  };
+  setHeight();
+  ScrollTrigger.addEventListener("refreshInit", setHeight);
 
   gsap.to(track, {
     x: () => -amount(),
     ease: "none",
     scrollTrigger: {
-      trigger: ".hscroll",
+      trigger: section,
       start: "top top",
-      end: () => `+=${amount()}`,
+      end: "bottom bottom",
       scrub: 1,
-      pin: true,
-      anticipatePin: 1,
       invalidateOnRefresh: true,
       snap: {
         snapTo: 1 / (cards.length - 1),

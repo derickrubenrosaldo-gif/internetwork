@@ -7,4 +7,10 @@ app_name = "core"
 urlpatterns = [
     path("", views.HomeView.as_view(), name="home"),
     path("contacto/enviar/", views.submit_lead, name="submit_lead"),
+    path("legal/<slug:slug>/", views.legal_page, name="legal_page"),
+    path("pagos/", views.payments_page, name="payments"),
+    path("pagos/enviar/", views.submit_payment, name="submit_payment"),
+    path("panel/", views.client_panel, name="client_panel"),
+    path("panel/entrar/", views.client_login, name="client_login"),
+    path("panel/salir/", views.client_logout, name="client_logout"),
 ]

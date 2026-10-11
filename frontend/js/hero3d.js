@@ -54,10 +54,10 @@ function initThreeScene(canvas, THREE) {
   const nodes = new THREE.Points(
     nodesGeometry,
     new THREE.PointsMaterial({
-      color: 0x27c4ff,
+      color: 0x0a7cbe,
       size: 0.09,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.85,
     })
   );
   scene.add(nodes);
@@ -84,10 +84,9 @@ function initThreeScene(canvas, THREE) {
   const lines = new THREE.LineSegments(
     linesGeometry,
     new THREE.LineBasicMaterial({
-      color: 0x087cf0,
+      color: 0x0b63d6,
       transparent: true,
-      opacity: 0.25,
-      blending: THREE.AdditiveBlending,
+      opacity: 0.3,
     })
   );
   scene.add(lines);
@@ -194,7 +193,7 @@ function initCanvas2D(canvas) {
       point.y += point.vy;
       if (point.x < 0 || point.x > canvas.width) point.vx *= -1;
       if (point.y < 0 || point.y > canvas.height) point.vy *= -1;
-      ctx.fillStyle = "rgba(39,196,255,.85)";
+      ctx.fillStyle = "rgba(10,124,190,.85)";
       ctx.beginPath();
       ctx.arc(point.x, point.y, 1.8 * dpr, 0, 7);
       ctx.fill();
@@ -206,7 +205,7 @@ function initCanvas2D(canvas) {
         const b = points[j];
         const dist = Math.hypot(a.x - b.x, a.y - b.y);
         if (dist < LINK) {
-          ctx.strokeStyle = `rgba(39,196,255,${(1 - dist / LINK) * 0.35})`;
+          ctx.strokeStyle = `rgba(10,124,190,${(1 - dist / LINK) * 0.35})`;
           ctx.lineWidth = dpr;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
@@ -216,7 +215,7 @@ function initCanvas2D(canvas) {
       }
       const m = Math.hypot(points[i].x - mouse.x, points[i].y - mouse.y);
       if (m < LINK * 1.3) {
-        ctx.strokeStyle = `rgba(8,124,240,${(1 - m / (LINK * 1.3)) * 0.8})`;
+        ctx.strokeStyle = `rgba(11,99,214,${(1 - m / (LINK * 1.3)) * 0.75})`;
         ctx.beginPath();
         ctx.moveTo(points[i].x, points[i].y);
         ctx.lineTo(mouse.x, mouse.y);

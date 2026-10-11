@@ -8,17 +8,29 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "static", "lottie");
 mkdirSync(outDir, { recursive: true });
 
-const CYAN = [0.153, 0.769, 1];
-const BLUE = [0.031, 0.486, 0.941];
+const CYAN = [0.039, 0.486, 0.745];
+const BLUE = [0.043, 0.388, 0.839];
 
 /* ---------- utilidades de formato Lottie ---------- */
 const EASE_3 = { i: { x: [0.667, 0.667, 0.667], y: [1, 1, 1] }, o: { x: [0.333, 0.333, 0.333], y: [0, 0, 0] } };
 const EASE_1 = { i: { x: [0.667], y: [1] }, o: { x: [0.333], y: [0] } };
 
-const animated = (keys, dims = 1) => ({
-  a: 1,
-  k: keys.map(([t, v]) => ({ ...(dims === 1 ? EASE_1 : EASE_3), t, s: v })),
-});
+/* La dimensionalidad del easing SIEMPRE debe coincidir con la del valor:
+   si una escala se declara [x, y, 0] con handles de 1 dimensión (o al revés),
+   Lottie colapsa la matriz y la forma desaparece. Por eso se infiere aquí. */
+const animated = (keys) => {
+  const dims = keys[0][1].length;
+  const ease = dims === 1 ? EASE_1 : EASE_3;
+  return {
+    a: 1,
+    k: keys.map(([t, v]) => {
+      if (v.length !== dims) {
+        throw new Error(`Valor de ${v.length} dimensiones con easing de ${dims} (t=${t})`);
+      }
+      return { ...ease, t, s: v };
+    }),
+  };
+};
 
 const fixed = (value) => ({ a: 0, k: value });
 
@@ -87,10 +99,11 @@ function signal(size) {
         stroke(CYAN, 5 * s),
         transform({
           o: animated([[0, [55 - i * 12]], [30, [95 - i * 12]], [60, [55 - i * 12]]]),
-          s: animated(
-            [[0, [92 - i * 6, 92 - i * 6]], [30, [118 - i * 6, 118 - i * 6]], [60, [92 - i * 6, 92 - i * 6]]],
-            3
-          ),
+          s: animated([
+            [0, [92 - i * 6, 92 - i * 6, 100]],
+            [30, [118 - i * 6, 118 - i * 6, 100]],
+            [60, [92 - i * 6, 92 - i * 6, 100]],
+          ]),
         }),
       ],
       `anillo-${i}`
@@ -98,7 +111,7 @@ function signal(size) {
   });
   const core = group(
     [ellipse("nucleo", [26 * s, 26 * s]), fill(BLUE), transform({
-      s: animated([[0, [100, 100]], [30, [125, 125]], [60, [100, 100]]], 3),
+      s: animated([[0, [100, 100, 100]], [30, [125, 125, 100]], [60, [100, 100, 100]]]),
     })],
     "nucleo"
   );
@@ -116,8 +129,13 @@ function dashboard(size) {
         rect(`barra${i}`, [16 * s, h], [0, h / 2], 5 * s),
         fill(i % 2 ? CYAN : BLUE),
         transform({
-          p: animated([[0, [x * 0.4, 40 * s]], [24, [x, 0]], [48, [x, 0]], [60, [x, 0]]], 3),
-          s: animated([[0, [100, 100]], [30, [100, 135 + i * 8]], [60, [100, 100]]], 3),
+          p: animated([
+            [0, [x * 0.4, 40 * s, 0]],
+            [24, [x, 0, 0]],
+            [48, [x, 0, 0]],
+            [60, [x, 0, 0]],
+          ]),
+          s: animated([[0, [100, 100, 100]], [30, [100, 135 + i * 8, 100]], [60, [100, 100, 100]]]),
         }),
       ],
       `barra-${i}`
@@ -161,7 +179,7 @@ function mountain(size) {
         stroke(CYAN, 4 * s),
         transform({
           o: animated([[0, [30 - i * 10]], [30, [90 - i * 10]], [60, [30 - i * 10]]]),
-          p: animated([[0, [0, 34 * s]], [30, [0, 30 * s]], [60, [0, 34 * s]]], 3),
+          p: animated([[0, [0, 34 * s, 0]], [30, [0, 30 * s, 0]], [60, [0, 34 * s, 0]]]),
         }),
       ],
       `onda-${i}`
@@ -184,23 +202,21 @@ function code(size) {
         path(
           `llave-${sign}`,
           [
-            [d * 18 * s, -30 * s],
-            [d * 42 * s, -12 * s],
-            [d * 18 * s, 6 * s],
-            [d * 42 * s, 24 * s],
-            [d * 18 * s, 42 * s],
+            [d * 56 * s, -38 * s],
+            [d * 6 * s, 0],
+            [d * 56 * s, 38 * s],
           ],
           false
         ),
-        stroke(CYAN, 6 * s),
+        stroke(CYAN, 9 * s),
       ],
       `llave-${sign}`
     );
   };
   const slash = group(
     [
-      path("diagonal", [[10 * s, -34 * s], [-10 * s, 34 * s]], false),
-      stroke(BLUE, 6 * s),
+      path("diagonal", [[26 * s, -44 * s], [-26 * s, 44 * s]], false),
+      stroke(BLUE, 9 * s),
       transform({ o: animated([[0, [100]], [40, [100]], [46, [20]], [52, [100]], [60, [100]]]) }),
     ],
     "diagonal"

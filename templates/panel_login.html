@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<main>
+  <section class="panel-login">
+    <div class="panel-card">
+      <div class="panel-mark" aria-hidden="true"></div>
+      <h1 class="panel-title">Panel de clientes</h1>
+      <p class="panel-sub">Consulta el estado de tus pagos. Ingresa tu correo y la referencia de tu pago.</p>
+
+      {% if error %}
+        <div class="panel-error" role="alert">{{ error }}</div>
+      {% endif %}
+
+      <form method="post" action="{% url 'core:client_login' %}" class="panel-form" novalidate>
+        {% csrf_token %}
+        <label class="pl-label" for="id_email">Correo electrónico</label>
+        <input class="pl-input" type="email" id="id_email" name="email" autocomplete="email" required>
+
+        <label class="pl-label" for="id_reference">Referencia de pago</label>
+        <input class="pl-input" type="text" id="id_reference" name="reference"
+               placeholder="INT-AAAAMMDD-XXXX" autocomplete="off" required>
+
+        <button type="submit" class="btn primary panel-btn">Entrar a mi panel</button>
+      </form>
+
+      <p class="panel-help">¿Perdiste tu referencia? Escríbenos por
+        {% if config.whatsapp %}<a href="{{ config.whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>{% else %}<a href="mailto:{{ config.email }}">correo</a>{% endif %}
+        o llámanos al {{ config.phone }}.
+      </p>
+    </div>
+  </section>
+</main>
+{% endblock %}

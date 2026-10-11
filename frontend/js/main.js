@@ -10,6 +10,7 @@ import { initServicesScroller } from "./servicesScroller.js";
 import { initRural } from "./rural.js";
 import { initMicroInteractions } from "./microInteractions.js";
 import { initContactForm } from "./contactForm.js";
+import { initPaymentForm } from "./paymentForm.js";
 import { initHero3D } from "./hero3d.js";
 import { initStats } from "./stats.js";
 
@@ -39,31 +40,26 @@ if (preloader) {
   }
 }
 
-/* Barra de progreso del scroll */
+/* Barra de progreso del scroll (GSAP ScrollTrigger; oculta con movimiento reducido) */
 const progress = document.getElementById("progress");
-if (progress) {
-  if (!REDUCED) {
-    gsap.to(progress, {
-      scaleX: 1,
-      transformOrigin: "left center",
-      ease: "none",
-      scrollTrigger: { start: 0, end: "max", scrub: 0.3 },
-    });
-  } else {
-    const update = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      progress.style.width = `${max > 0 ? (window.scrollY / max) * 100 : 0}%`;
-    };
-    addEventListener("scroll", update, { passive: true });
-    update();
-  }
+if (progress && !REDUCED) {
+  gsap.to(progress, {
+    scaleX: 1,
+    transformOrigin: "left center",
+    ease: "none",
+    scrollTrigger: { start: 0, end: "max", scrub: 0.3 },
+  });
 }
 
 /* Header más sólido al hacer scroll */
 const header = document.querySelector("header");
-const onScrollNav = () => header?.classList.toggle("scrolled", window.scrollY > 40);
-addEventListener("scroll", onScrollNav, { passive: true });
-onScrollNav();
+if (header) {
+  ScrollTrigger.create({
+    start: 40,
+    end: "max",
+    toggleClass: { targets: header, className: "scrolled" },
+  });
+}
 
 /* Módulos */
 const lenis = initSmoothScroll(REDUCED);
@@ -73,25 +69,47 @@ initServicesScroller(REDUCED);
 initRural(REDUCED);
 initMicroInteractions(REDUCED);
 initContactForm();
+initPaymentForm();
 initHero3D(REDUCED);
 initStats(REDUCED);
 
-/* Eyebrows: entrada sutil con desplazamiento (excepto en la escena fija) */
+/* Revelado al hacer scroll: los bloques con .reveal aparecen con .in */
+const revealTargets = document.querySelectorAll(".reveal");
+if (REDUCED) {
+  revealTargets.forEach((el) => el.classList.add("in"));
+} else {
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("in");
+        revealObserver.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
+  );
+  revealTargets.forEach((el) => revealObserver.observe(el));
+}
+
+/* Eyebrows: entrada sutil con desplazamiento (los que ya usan .reveal
+   se animan con el observador de arriba para no duplicar animaciones) */
 if (!REDUCED) {
-  gsap.utils.toArray(".eyebrow:not(.step .eyebrow)").forEach((el) => {
-    gsap.from(el, {
-      x: -16,
-      opacity: 0,
-      duration: 0.7,
-      ease: "power2.out",
-      scrollTrigger: { trigger: el, start: "top 90%", once: true },
+  gsap.utils
+    .toArray(".eyebrow:not(.reveal):not(.step .eyebrow)")
+    .forEach((el) => {
+      gsap.from(el, {
+        x: -16,
+        opacity: 0,
+        duration: 0.7,
+        ease: "power2.out",
+        scrollTrigger: { trigger: el, start: "top 90%", once: true },
+      });
     });
-  });
 }
 
 /* Nav: resalta la sección visible */
 const navLinks = Array.from(document.querySelectorAll("header nav a"));
-const sectionIds = ["inicio", "historia", "servicios", "rural", "nosotros"];
+const sectionIds = ["inicio", "historia", "servicios", "planes", "rural", "nosotros"];
 if (navLinks.length) {
   const navObserver = new IntersectionObserver(
     (entries) => {

@@ -63,7 +63,7 @@ export function initContactForm() {
   }
 
   function showSuccess(data) {
-    note.textContent = data.message || "¡Solicitud enviada!";
+    note.textContent = data.message || "Solicitud enviada.";
     note.classList.add("success");
     gsap.fromTo(form, { scale: 0.985 }, { scale: 1, duration: 0.5, ease: "back.out(2)" });
     gsap.fromTo(note, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.5 });

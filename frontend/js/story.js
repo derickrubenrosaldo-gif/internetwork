@@ -1,9 +1,14 @@
 /* Escena fija (pin) con 4 pasos: timeline maestro con scrub.
-   Cada paso cruza texto, visual (Lottie o SVG), brillo y contador. */
+   La fijación visual la hace el `position: sticky` del CSS y el scrubbing el
+   ScrollTrigger, así funciona igual sin depender del pin de GSAP. */
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 let lottieItems = [];
+
+/* Colores del contador de pasos (mismos valores que la paleta CSS) */
+const DOT_IDLE = "rgba(11,33,56,.16)";
+const DOT_ACTIVE = "#0b63d6";
 
 export function initStory(reduced) {
   const story = document.querySelector(".story");
@@ -37,8 +42,6 @@ export function initStory(reduced) {
       start: "top top",
       end: "bottom bottom",
       scrub: 0.6,
-      pin: true,
-      anticipatePin: 1,
       invalidateOnRefresh: true,
       onUpdate: (self) => syncWithProgress(self.progress),
     },
@@ -50,8 +53,8 @@ export function initStory(reduced) {
     .set(steps[0], { opacity: 1, y: 0 })
     .set(items, { opacity: 0, scale: 0.88 })
     .set(items[0], { opacity: 1, scale: 1 })
-    .set(dots, { backgroundColor: "rgba(255,255,255,.18)", width: 34 })
-    .set(dots[0], { backgroundColor: "#27c4ff", width: 54 });
+    .set(dots, { backgroundColor: DOT_IDLE, width: 34 })
+    .set(dots[0], { backgroundColor: DOT_ACTIVE, width: 54 });
 
   if (glows[0] && bg) timeline.set(bg, { "--glow": glows[0] });
 
@@ -63,21 +66,24 @@ export function initStory(reduced) {
       .to(steps[i], { opacity: 1, y: 0, duration: 0.9 }, t)
       .to(items[i - 1], { opacity: 0, scale: 0.88, duration: 0.9 }, t)
       .to(items[i], { opacity: 1, scale: 1, duration: 0.9 }, t)
-      .to(dots[i - 1], { backgroundColor: "rgba(255,255,255,.18)", width: 34, duration: 0.5 }, t)
-      .to(dots[i], { backgroundColor: "#27c4ff", width: 54, duration: 0.5 }, t);
+      .to(dots[i - 1], { backgroundColor: DOT_IDLE, width: 34, duration: 0.5 }, t)
+      .to(dots[i], { backgroundColor: DOT_ACTIVE, width: 54, duration: 0.5 }, t);
     if (glows[i] && bg) {
       timeline.to(bg, { "--glow": glows[i], duration: 0.9 }, t);
     }
   }
 }
 
-/* Sincroniza las animaciones Lottie con el progreso del scrub */
+/* Sincroniza las animaciones Lottie con el progreso del scrub.
+   El frame se limita a `totalFrames - 1`: en el frame final (op) Lottie
+   no dibuja nada y el gráfico desaparecería al terminar cada tramo. */
 function syncWithProgress(progress) {
   lottieItems.forEach(({ index, anim, total }) => {
     const segStart = index / (total - 1 || 1);
     const segEnd = (index + 1) / (total - 1 || 1);
     const local = Math.min(1, Math.max(0, (progress - segStart) / (segEnd - segStart)));
-    anim.goToAndStop(local * anim.totalFrames, true);
+    const lastFrame = Math.max(0, anim.totalFrames - 1);
+    anim.goToAndStop(Math.min(local * anim.totalFrames, lastFrame), true);
   });
 }
 

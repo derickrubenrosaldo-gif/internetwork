@@ -1,0 +1,82 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% comment %} Dashboard de INTERNETWORK: resumen y actividad reciente (estilos en css/admin.css). {% endcomment %}
+
+{% block content %}
+<div class="dash-wrap">
+  <h2>Resumen</h2>
+  <div class="dashboard">
+    <a class="dash-card" href="{% url 'admin:core_lead_changelist' %}">
+      <b>{{ dashboard.leads }}</b><span>Solicitudes</span>
+    </a>
+    <a class="dash-card" href="{% url 'admin:core_lead_changelist' %}?status__exact=new">
+      <b>{{ dashboard.new_leads }}</b><span>Nuevas</span>
+    </a>
+    <a class="dash-card" href="{% url 'admin:core_payment_changelist' %}?status__exact=pending">
+      <b>{{ dashboard.payments_pending }}</b><span>Pagos pendientes</span>
+    </a>
+    <a class="dash-card money" href="{% url 'admin:core_payment_changelist' %}?status__exact=pending">
+      <b>${{ dashboard.pending_amount|floatformat:2 }}</b><span>Monto pendiente</span>
+    </a>
+    <a class="dash-card" href="{% url 'admin:core_payment_changelist' %}?status__exact=paid">
+      <b>{{ dashboard.payments_paid }}</b><span>Pagos confirmados</span>
+    </a>
+    <a class="dash-card" href="{% url 'admin:core_service_changelist' %}">
+      <b>{{ dashboard.services }}</b><span>Servicios</span>
+    </a>
+    <a class="dash-card" href="{% url 'admin:core_plan_changelist' %}">
+      <b>{{ dashboard.plans }}</b><span>Planes</span>
+    </a>
+    <a class="dash-card" href="{% url 'admin:core_legalpage_changelist' %}">
+      <b>{{ dashboard.legal_pages }}</b><span>Páginas legales</span>
+    </a>
+  </div>
+  <div class="dash-cols">
+    <section class="dash-panel">
+      <h3>Últimas solicitudes</h3>
+      {% if recent_leads %}
+      <table class="dash-table">
+        <thead>
+          <tr><th>Nombre</th><th>Servicio</th><th>Fecha</th></tr>
+        </thead>
+        <tbody>
+          {% for lead in recent_leads %}
+          <tr>
+            <td>{{ lead.name }}</td>
+            <td>{{ lead.service_of_interest }}</td>
+            <td>{{ lead.created_at|date:"d/m/Y H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="dash-empty">Sin solicitudes todavía.</p>
+      {% endif %}
+    </section>
+    <section class="dash-panel">
+      <h3>Últimos pagos</h3>
+      {% if recent_payments %}
+      <table class="dash-table">
+        <thead>
+          <tr><th>Referencia</th><th>Servicio</th><th>Monto</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          {% for payment in recent_payments %}
+          <tr>
+            <td>{{ payment.reference }}</td>
+            <td>{{ payment.service }}</td>
+            <td class="num">${{ payment.amount|floatformat:2 }}</td>
+            <td>{{ payment.get_status_display }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="dash-empty">Sin pagos todavía.</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{{ block.super }}
+{% endblock %}

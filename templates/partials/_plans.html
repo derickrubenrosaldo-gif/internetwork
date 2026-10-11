@@ -1,0 +1,29 @@
+<!-- PLANES RESIDENCIALES -->
+<section class="plans" id="planes" aria-label="Planes residenciales">
+  <div class="orb orb-a" aria-hidden="true"></div>
+  <div class="orb orb-b" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="eyebrow reveal">Internet residencial</div>
+    <h2 class="reveal d1">Planes para tu casa. <span class="grad">Sin letra pequeña.</span></h2>
+    <p class="plans-sub reveal d2">Velocidad real, precio claro y soporte humano. Elige tu plan y te instalamos en días.</p>
+    <div class="plan-grid">
+      {% for plan in plans %}
+      <article class="plan-card reveal{% cycle '' ' d1' ' d2' %}{% if plan.is_popular %} popular{% endif %}">
+        {% if plan.is_popular %}<span class="plan-badge">Más popular</span>{% endif %}
+        <h3>{{ plan.name }}</h3>
+        <div class="plan-speed">{{ plan.speed }}</div>
+        <p class="plan-price">{{ plan.price }}<small>{{ plan.period }}</small></p>
+        <p class="plan-tag">{{ plan.tagline }}</p>
+        <ul class="plan-feats">
+          {% for feature in plan.features %}<li>{{ feature }}</li>{% endfor %}
+        </ul>
+        {% if plan.is_popular %}
+          <a class="btn" href="{{ plan.url }}">Elegir {{ plan.name }}</a>
+        {% else %}
+          <a class="btn btn-light" href="{{ plan.url }}">Elegir {{ plan.name }}</a>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

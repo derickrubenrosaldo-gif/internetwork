@@ -1,0 +1,23 @@
+<!-- INTERNET DEDICADO -->
+<section class="dedicated" id="dedicado" aria-label="Internet dedicado">
+  <div class="wrap dedicated-grid">
+    <div class="dedicated-copy">
+      <div class="eyebrow reveal">Internet dedicado</div>
+      <h2 class="reveal d1">
+        {{ config.dedicated_title }} <span class="grad">{{ config.dedicated_title_highlight }}</span>
+      </h2>
+      <p class="reveal d2">{{ config.dedicated_description }}</p>
+      <a class="btn reveal d3" href="#contacto">Contacto</a>
+    </div>
+    <div class="dedicated-feats">
+      {% for feature in config.dedicated_features %}
+      <div class="feat reveal{% cycle '' ' d1' ' d2' ' d3' %}">
+        <div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.text }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,49 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{% if form.errors %}{% translate "Error:" %} {% endif %}{{ block.super }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+{{ form.media }}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block usertools %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}
+<form action="{{ app_path }}" method="post" id="login-form" class="lg-form" novalidate>
+  {% csrf_token %}
+  <div class="lg-mark" aria-hidden="true"></div>
+  <h1 class="lg-title">INTERNETWORK</h1>
+  <p class="lg-sub">Panel de administración</p>
+
+  {% if form.non_field_errors %}
+    <div class="lg-error" role="alert">
+      {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
+    </div>
+  {% endif %}
+
+  <label class="lg-label" for="id_username">{{ form.username.label }}</label>
+  <div class="lg-field">
+    {{ form.username.errors }}
+    {{ form.username }}
+  </div>
+
+  <label class="lg-label" for="id_password">{{ form.password.label }}</label>
+  <div class="lg-field">
+    {{ form.password.errors }}
+    {{ form.password }}
+    <input type="hidden" name="next" value="{{ next }}">
+  </div>
+
+  <div class="lg-submit">
+    <button type="submit" class="lg-btn">{% translate "Log in" %}</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,6 +1,7 @@
 """Modelos del sitio INTERNETWORK — todo editable desde el admin."""
 
 from django.db import models
+from django.urls import reverse
 
 
 class SiteConfig(models.Model):
@@ -60,6 +61,34 @@ class SiteConfig(models.Model):
         blank=True,
         help_text='Lista de {"name": "...", "url": "https://..."}.',
     )
+    dedicated_title = models.CharField(
+        "Internet dedicado · título",
+        max_length=200,
+        default="Ancho de banda exclusivo para tu operación.",
+    )
+    dedicated_title_highlight = models.CharField(
+        "Internet dedicado · resaltado", max_length=120, default="Sin compartir."
+    )
+    dedicated_description = models.TextField(
+        "Internet dedicado · descripción",
+        default=(
+            "El internet dedicado te asigna una conexión privada y simétrica: "
+            "toda la capacidad es para tu negocio, con respuesta garantizada "
+            "y monitoreo continuo."
+        ),
+    )
+    dedicated_features = models.JSONField(
+        "Internet dedicado · características",
+        default=list,
+        blank=True,
+        help_text='Lista de {"title": "...", "text": "..."}.',
+    )
+    payment_instructions = models.TextField(
+        "Pagos · instrucciones bancarias",
+        blank=True,
+        default="",
+        help_text="Datos de cuenta o instrucciones para transferir.",
+    )
 
     class Meta:
         verbose_name = "Configuración del sitio"
@@ -116,6 +145,38 @@ class Service(models.Model):
         return self.title
 
 
+class Plan(models.Model):
+    """Plan de internet residencial mostrado en la sección 'Planes'."""
+
+    name = models.CharField("Nombre", max_length=80)
+    speed = models.CharField("Velocidad", max_length=60, default="100 Mbps")
+    price = models.CharField("Precio (texto)", max_length=40, default="$299")
+    period = models.CharField("Periodo", max_length=20, default="/mes")
+    tagline = models.CharField("Descripción corta", max_length=200, default="")
+    features = models.JSONField(
+        "Características",
+        default=list,
+        blank=True,
+        help_text='Lista de textos. Ej: ["WiFi incluido", "Instalación gratis"]',
+    )
+    is_popular = models.BooleanField(
+        "Destacado",
+        default=False,
+        help_text="Se muestra como 'Más popular'.",
+    )
+    url = models.CharField("Enlace (ancla o URL)", max_length=255, default="#contacto")
+    order = models.PositiveIntegerField("Orden", default=0)
+    active = models.BooleanField("Activo", default=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Plan residencial"
+        verbose_name_plural = "Planes residenciales"
+
+    def __str__(self):
+        return f"{self.name} — {self.speed}"
+
+
 class StoryStep(models.Model):
     """Paso de la escena fija (sección 'Qué hacemos')."""
 
@@ -163,6 +224,71 @@ class Differentiator(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class LegalPage(models.Model):
+    """Página legal: aviso de privacidad, términos, aviso legal, cookies."""
+
+    title = models.CharField("Título", max_length=120)
+    slug = models.SlugField("URL", max_length=120, unique=True)
+    content = models.TextField(
+        "Contenido",
+        help_text="Texto plano: cada línea se renderiza como un párrafo.",
+    )
+    updated_at = models.DateTimeField("Última actualización", auto_now=True)
+    order = models.PositiveIntegerField("Orden", default=0)
+    active = models.BooleanField("Activo", default=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Página legal"
+        verbose_name_plural = "Páginas legales"
+
+    def get_absolute_url(self):
+        return reverse("core:legal_page", kwargs={"slug": self.slug})
+
+    @property
+    def paragraphs(self):
+        """Contenido partido en párrafos (una línea = un párrafo)."""
+        return [line.strip() for line in self.content.splitlines() if line.strip()]
+
+    def __str__(self):
+        return self.title
+
+
+class Payment(models.Model):
+    """Pago registrado desde la página de pagos."""
+
+    METHOD_CHOICES = [
+        ("transfer", "Transferencia"),
+        ("card", "Tarjeta"),
+        ("cash", "Efectivo / OXXO"),
+    ]
+    STATUS_CHOICES = [
+        ("pending", "Pendiente"),
+        ("paid", "Pagado"),
+    ]
+
+    name = models.CharField("Nombre", max_length=150)
+    email = models.EmailField("Correo")
+    phone = models.CharField("Teléfono", max_length=40, blank=True, default="")
+    service = models.CharField("Servicio o plan", max_length=150)
+    amount = models.DecimalField("Monto", max_digits=10, decimal_places=2)
+    method = models.CharField("Método", max_length=20, choices=METHOD_CHOICES)
+    reference = models.CharField("Referencia", max_length=40, unique=True)
+    status = models.CharField(
+        "Estado", max_length=20, choices=STATUS_CHOICES, default="pending"
+    )
+    created_at = models.DateTimeField("Fecha", auto_now_add=True)
+    ip_address = models.GenericIPAddressField("IP", blank=True, null=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Pago"
+        verbose_name_plural = "Pagos"
+
+    def __str__(self):
+        return f"{self.reference} — {self.service} ({self.get_status_display()})"
 
 
 class Lead(models.Model):

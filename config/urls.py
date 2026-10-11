@@ -1,16 +1,16 @@
 """URLs del proyecto INTERNETWORK."""
 
-from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap as sitemap_view
 from django.urls import include, path
 
-from core.sitemaps import StaticViewSitemap
+from core.admin import admin_site
+from core.sitemaps import LegalPageSitemap, StaticViewSitemap
 from core.views import robots_txt
 
-sitemaps = {"static": StaticViewSitemap}
+sitemaps = {"static": StaticViewSitemap, "legal": LegalPageSitemap}
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin/", admin_site.urls),
     path("", include("core.urls")),
     path("robots.txt", robots_txt, name="robots"),
     path(

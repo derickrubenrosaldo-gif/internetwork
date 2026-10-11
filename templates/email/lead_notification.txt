@@ -1,4 +1,4 @@
-Nueva solicitud de servicio — INTERNETWORK
+Nueva solicitud de servicio - INTERNETWORK
 
 Nombre: {{ lead.name }}
 Empresa: {{ lead.company|default:"No indicada" }}
@@ -7,7 +7,7 @@ Teléfono: {{ lead.phone|default:"No indicado" }}
 Servicio de interés: {{ lead.service_of_interest }}
 Mensaje: {{ lead.message|default:"Sin detalles adicionales" }}
 Fecha: {{ lead.created_at }}
-IP: {{ lead.ip_address|default:"—" }}
+IP: {{ lead.ip_address|default:"-" }}
 
 Responder desde el admin: /admin/core/lead/
 {% if whatsapp %}Abrir WhatsApp: https://wa.me/{{ whatsapp }}{% endif %}

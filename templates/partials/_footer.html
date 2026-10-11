@@ -11,4 +11,9 @@
       </span>
     {% endif %}
   </div>
+  <nav class="legal-links" aria-label="Enlaces legales">
+    {% for page in legal_pages %}
+      <a href="{{ page.get_absolute_url }}">{{ page.title }}</a>
+    {% endfor %}
+  </nav>
 </footer>

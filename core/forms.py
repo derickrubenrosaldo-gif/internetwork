@@ -1,8 +1,8 @@
-"""Formulario de contacto con validación en servidor y honeypot anti-spam."""
+"""Formularios con validación en servidor y honeypot anti-spam."""
 
 from django import forms
 
-from .models import Lead, Service
+from .models import Lead, Payment, Plan, Service
 
 
 class LeadForm(forms.ModelForm):
@@ -52,3 +52,57 @@ class LeadForm(forms.ModelForm):
     def clean_honeypot(self):
         # Si el campo oculto tiene contenido, es un bot: el vista lo ignora.
         return self.cleaned_data.get("honeypot", "")
+
+
+class PaymentForm(forms.ModelForm):
+    honeypot = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(attrs={"tabindex": "-1", "autocomplete": "off"}),
+        label="",
+    )
+
+    class Meta:
+        model = Payment
+        fields = ["name", "email", "phone", "service", "amount", "method"]
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": "Tu nombre"}),
+            "email": forms.EmailInput(attrs={"placeholder": "tu@correo.com"}),
+            "phone": forms.TextInput(attrs={"placeholder": "Tu número"}),
+            "service": forms.Select(),
+            "amount": forms.NumberInput(
+                attrs={"placeholder": "Monto a pagar", "min": "1", "step": "0.01"}
+            ),
+            "method": forms.Select(),
+        }
+        labels = {
+            "name": "Nombre",
+            "email": "Correo",
+            "phone": "Teléfono",
+            "service": "Servicio o plan",
+            "amount": "Monto",
+            "method": "Método de pago",
+        }
+        help_texts = {"name": "", "email": ""}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["name"].required = True
+        self.fields["email"].required = True
+        self.fields["service"].required = True
+        self.fields["amount"].required = True
+        self.fields["method"].required = True
+        choices = [("", "Selecciona qué pagas")]
+        choices += [
+            (s.title, f"Servicio: {s.title}")
+            for s in Service.objects.filter(active=True).order_by("order")
+        ]
+        choices += [
+            (p.name, f"Plan {p.name} ({p.speed})")
+            for p in Plan.objects.filter(active=True).order_by("order")
+        ]
+        choices.append(("Otro servicio", "Otro servicio"))
+        self.fields["service"].widget = forms.Select(choices=choices)
+        self.fields["method"].choices = [
+            ("", "Selecciona un método"),
+            *Payment.METHOD_CHOICES,
+        ]

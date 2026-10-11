@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- PAGOS: métodos y formulario de registro -->
+  <section class="payments" id="pagos" aria-label="Pagos">
+    <div class="wrap payments-in">
+      <div class="eyebrow reveal">Pagos</div>
+      <h1 class="reveal d1">Realiza tu <span class="grad">pago.</span></h1>
+      <p class="payments-sub reveal d2">
+        Elige el método, registra tu pago y usa la referencia en tu transferencia
+        o comprobante. Confirmamos tu pago en breve.
+      </p>
+
+      <div class="methods-grid reveal d2">
+        <div class="method-card" data-tilt>
+          <b aria-hidden="true">⌁</b>
+          <h3>Transferencia</h3>
+          <p>Transfiere a nuestra cuenta con la referencia de tu pago.</p>
+        </div>
+        <div class="method-card" data-tilt>
+          <b aria-hidden="true">▣</b>
+          <h3>Tarjeta</h3>
+          <p>Crédito o débito desde el enlace de pago que te enviamos.</p>
+        </div>
+        <div class="method-card" data-tilt>
+          <b aria-hidden="true">✆</b>
+          <h3>Efectivo / OXXO</h3>
+          <p>Paga en efectivo o en tiendas de conveniencia con tu referencia.</p>
+        </div>
+      </div>
+
+      <form id="payForm" class="reveal d1" method="post" action="{% url 'core:submit_payment' %}" novalidate>
+        {% csrf_token %}
+        <div class="row">
+          <div class="f">
+            <label for="{{ form.name.id_for_label }}">Nombre *</label>
+            {{ form.name }}
+          </div>
+          <div class="f">
+            <label for="{{ form.email.id_for_label }}">Correo *</label>
+            {{ form.email }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="f">
+            <label for="{{ form.phone.id_for_label }}">Teléfono</label>
+            {{ form.phone }}
+          </div>
+          <div class="f">
+            <label for="{{ form.method.id_for_label }}">Método de pago *</label>
+            {{ form.method }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="f">
+            <label for="{{ form.service.id_for_label }}">¿Qué pagas? *</label>
+            {{ form.service }}
+          </div>
+          <div class="f">
+            <label for="{{ form.amount.id_for_label }}">Monto *</label>
+            {{ form.amount }}
+          </div>
+        </div>
+        {# Honeypot anti-spam: invisible para personas #}
+        <div class="hp-wrap" aria-hidden="true">{{ form.honeypot }}</div>
+        <button class="btn" type="submit" id="paySubmitBtn">Registrar pago</button>
+        <div class="form-note" id="payNote" role="status" aria-live="polite">
+          Al registrar recibimos tu pago y lo marcamos como pendiente de confirmación.
+        </div>
+        <div class="pay-result" id="payResult" hidden>
+          <div class="pay-ref">Referencia: <b id="payRef"></b></div>
+          <p id="payInstructions"></p>
+        </div>
+      </form>
+
+      {% if config.payment_instructions %}
+      <div class="pay-details reveal d2">
+        <h2>Datos para transferir</h2>
+        <p>{{ config.payment_instructions|linebreaks }}</p>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}
