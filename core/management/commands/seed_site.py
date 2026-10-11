@@ -13,12 +13,17 @@ Regla del proyecto: nada de datos inventados por defecto. Precios, cifras,
 cobertura y datos bancarios solo se cargan con ``--demo``.
 """
 
+from datetime import date, timedelta
+
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
 from core.models import (
+    ClientProfile,
     Differentiator,
     Lead,
     LegalPage,
+    MonthlyCharge,
     Plan,
     Service,
     SiteConfig,
@@ -427,6 +432,81 @@ Cómo desactivarlas: puedes eliminar o bloquear cookies desde la configuración 
 ]
 
 
+
+# --- Cliente de EJEMPLO (solo con --demo) ------------------------------------
+DEMO_CLIENT = {
+    "username": "demo-cliente",
+    "password": "DemoInternet2026",
+    "email": "cliente@ejemplo.com",
+    "full_name": "María Ejemplo",
+    "phone": "921 123 4567",
+    "address": "Calle Managua 4, Minatitlán, Veracruz",
+    "customer_code": "DEMO-0001",
+    "monthly_amount": "480.00",
+    "billing_day": 5,
+}
+# Tres mensualidades: una por pagar, dos pagadas.
+DEMO_CHARGES = [
+    {"period_offset": 0, "amount": "480.00", "status": "pending"},
+    {"period_offset": -1, "amount": "480.00", "status": "paid"},
+    {"period_offset": -2, "amount": "480.00", "status": "paid"},
+]
+
+
+def _cargar_cliente_demo(force):
+    """Crea (o actualiza) el cliente de ejemplo y sus mensualidades."""
+    datos = DEMO_CLIENT
+    user, _ = User.objects.get_or_create(
+        username=datos["username"], defaults={"email": datos["email"]}
+    )
+    user.email = datos["email"]
+    user.set_password(datos["password"])
+    user.save()
+
+    profile, _ = ClientProfile.objects.get_or_create(
+        user=user,
+        defaults={
+            "full_name": datos["full_name"],
+            "phone": datos["phone"],
+            "address": datos["address"],
+            "customer_code": datos["customer_code"],
+            "monthly_amount": datos["monthly_amount"],
+            "billing_day": datos["billing_day"],
+        },
+    )
+    if force:
+        ClientProfile.objects.filter(pk=profile.pk).update(
+            full_name=datos["full_name"],
+            phone=datos["phone"],
+            address=datos["address"],
+            customer_code=datos["customer_code"],
+            monthly_amount=datos["monthly_amount"],
+            billing_day=datos["billing_day"],
+        )
+
+    plan = Plan.objects.filter(name="30 Megas").first()
+    if plan:
+        ClientProfile.objects.filter(pk=profile.pk).update(plan=plan)
+
+    hoy = date.today()
+    for item in DEMO_CHARGES:
+        mes = (hoy.replace(day=1) + timedelta(days=32 * item["period_offset"])).replace(day=1)
+        periodo = mes.strftime("%Y-%m")
+        vence = mes.replace(day=min(datos["billing_day"], 28))
+        pagada = item["status"] == "paid"
+        MonthlyCharge.objects.update_or_create(
+            client=profile,
+            period=periodo,
+            defaults={
+                "amount": item["amount"],
+                "due_date": vence,
+                "status": item["status"],
+                "paid_at": vence if pagada else None,
+                "reference": f"DEMO-{periodo}" if pagada else "",
+            },
+        )
+    return profile
+
 class Command(BaseCommand):
     help = "Carga el contenido base del sitio (no sobrescribe lo editado en el admin)."
 
@@ -475,6 +555,7 @@ class Command(BaseCommand):
         self._load(Plan, PLANS, "name", force)
         if demo:
             self._load(Plan, DEMO_PLANS, "name", force)
+            _cargar_cliente_demo(force)
 
         self.stdout.write(
             self.style.SUCCESS(
