@@ -274,7 +274,8 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 .brand { font-weight: 900; letter-spacing: -0.03em; font-size: 1.1rem; display: flex; align-items: center; gap: 9px; }
 .dot { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--cyan); position: relative; }
 .dot::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--cyan); }
-.site-nav { display: flex; gap: 26px; font-size: 0.82rem; color: var(--text); }
+.site-nav { display: flex; align-items: center; gap: 26px; font-size: 0.82rem; color: var(--text); }
+.site-nav > a { display: inline-flex; align-items: center; min-height: 24px; }
 .site-nav a:hover { color: var(--blue); }
 .nav .btn { padding: 8px 16px; font-size: 0.8rem; }
 .progress {
@@ -485,11 +486,15 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 .visual svg, .visual .lottie { width: min(380px, 80%); height: auto; overflow: visible; }
 .visual .story-photo {
   width: min(520px, 100%);
+  /* La foto vertical (1400x2100) se salía de la escena fija: se limita la
+     altura y se recorta con object-fit. */
+  max-height: 44vh;
   height: auto;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-2);
   object-fit: cover;
 }
+@media (max-width: 760px) { .visual .story-photo { max-height: 30vh; } }
 .visual .lottie { display: none; aspect-ratio: 1; }
 .visual .lottie.loaded { display: block; }
 .card .ic .lottie-icon { width: 56px; height: 56px; }
@@ -504,10 +509,14 @@ html.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--
 }
 .counter i.active { background: var(--cyan); width: 54px; }
 @media (max-width: 760px) {
-  .story-grid { grid-template-columns: 1fr; }
+  .story-grid { grid-template-columns: 1fr; gap: 24px; }
   .visual { order: -1; }
   .visual svg, .visual .lottie { width: 150px; }
-  .steps { height: 330px; }
+  /* Altura suficiente para el texto más largo y tipografía menor: antes el
+     h2 se recortaba contra el overflow:hidden de la escena. */
+  .steps { height: 400px; }
+  .step h2 { font-size: clamp(1.7rem, 7.5vw, 2.5rem); }
+  .step p { font-size: 1rem; }
 }
 
 /* ============================================================
@@ -896,9 +905,10 @@ html.js .d3 { transition-delay: 0.36s; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 24px;
   background: none;
   border: 0;
-  padding: 0;
+  padding: 4px 0;
   font: inherit;
   color: inherit;
   cursor: pointer;
@@ -977,6 +987,7 @@ html.js .d3 { transition-delay: 0.36s; }
   color: #fff;
 }
 .footer-col a, .footer-col span { font-size: 0.85rem; }
+.footer-col a { display: inline-block; padding: 3px 0; min-height: 24px; }
 .footer-col a { color: var(--navy-text); }
 .footer-col a:hover { color: var(--navy-link); }
 .brand-line { display: inline-flex; align-items: center; gap: 9px; font-weight: 900; color: #fff; font-size: 1.05rem; }
