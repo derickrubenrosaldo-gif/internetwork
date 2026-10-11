@@ -51,7 +51,9 @@ async function revealHeadings() {
   const heroTitle = document.querySelector(".hero h1 .hero-title");
   const heroGrad = document.querySelector(".hero h1 .hero-grad");
   const headings = [
-    ...document.querySelectorAll(".h-head h2, .rural h2, .plans h2, .dedicated h2, .why h2, .contact h2"),
+    ...document.querySelectorAll(
+      ".h-head h2, .rural h2, .plans h2, .dedicated h2, .coverage h2, .why h2, .contact h2"
+    ),
   ].filter(Boolean);
 
   if (!heroTitle && !headings.length) return;

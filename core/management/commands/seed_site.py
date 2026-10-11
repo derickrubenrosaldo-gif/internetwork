@@ -25,13 +25,92 @@ from core.models import (
     StoryStep,
 )
 
+# --- Cobertura real: (localidad, municipio) ---------------------------------
+COVERAGE_AREAS = [
+    ("Allende", "Coatzacoalcos"),
+    ("Mundo Nuevo", "Coatzacoalcos"),
+    ("Colorado", "Coatzacoalcos"),
+    ("Guillermo Prieto", "Coatzacoalcos"),
+    ("Las Barrillas", "Coatzacoalcos"),
+    ("Tonalá", "Agua Dulce"),
+    ("El Muelle", "Agua Dulce"),
+    ("Nanchital", "Nanchital"),
+    ("Pollo de Oro", "Nanchital"),
+    ("Ixhuatlán del Sureste", "Ixhuatlán del Sureste"),
+    ("El Chapo", "Ixhuatlán del Sureste"),
+    ("Villa Cuichapa", "Moloacán"),
+    ("Moloacán", "Moloacán"),
+    ("Mapachapa", "Minatitlán"),
+    ("Capoacán", "Minatitlán"),
+    ("Nuevo Atoyac", "Minatitlán"),
+    ("Francita", "Minatitlán"),
+    ("Coacotla", "Cosoleacaque"),
+    ("San Pedro Mártir", "Cosoleacaque"),
+    ("Estero del Pantano", "Cosoleacaque"),
+    ("Jáltipan", "Jáltipan"),
+    ("Lomas de Tacamichapan", "Jáltipan"),
+    ("Chinameca", "Chinameca"),
+    ("Chacalapa", "Chinameca"),
+    ("Oteapan", "Oteapan"),
+    ("Congregación Hidalgo", "Acayucan"),
+    ("Dehesa", "Acayucan"),
+    ("Comején", "Acayucan"),
+    ("Michapan de Osorio", "Acayucan"),
+    ("Soconusco", "Soconusco"),
+    ("Chogota", "Soconusco"),
+    ("Oluta", "Oluta"),
+    ("Correa", "Oluta"),
+    ("Sayula de Alemán", "Sayula de Alemán"),
+    ("Aguilera", "Sayula de Alemán"),
+    ("Almagres", "Sayula de Alemán"),
+    ("Texistepec", "Texistepec"),
+    ("San Lorenzo Tenochtitlán", "Texistepec"),
+    ("Villa Juanita", "San Juan Evangelista"),
+    ("La Lima", "San Juan Evangelista"),
+    ("Achotal", "San Juan Evangelista"),
+    ("Las Choapas", "Las Choapas"),
+    ("Cerro de Nanchital", "Las Choapas"),
+    ("Río Playas", "Las Choapas"),
+    ("La Chinantla", "Uxpanapa"),
+    ("Poblado Uno", "Uxpanapa"),
+    ("Poblado Dos", "Uxpanapa"),
+    ("Poblado Diez", "Uxpanapa"),
+    ("Hidalgotitlán", "Hidalgotitlán"),
+    ("El Arrozal", "Hidalgotitlán"),
+    ("Jesús Carranza", "Jesús Carranza"),
+    ("Suchilapan del Río", "Jesús Carranza"),
+    ("Sihuapan", "San Andrés Tuxtla"),
+    ("Comoapan", "San Andrés Tuxtla"),
+    ("Calería", "San Andrés Tuxtla"),
+    ("Salto de Eyipantla", "San Andrés Tuxtla"),
+    ("Tilapan", "San Andrés Tuxtla"),
+    ("Sontecomapan", "Catemaco"),
+    ("La Victoria", "Catemaco"),
+    ("Coyame", "Catemaco"),
+    ("Tebanca", "Catemaco"),
+    ("Tres Zapotes", "Santiago Tuxtla"),
+    ("Tlapacoyan", "Santiago Tuxtla"),
+    ("Tapalapan", "Santiago Tuxtla"),
+    ("Juan Díaz Covarrubias", "Hueyapan de Ocampo"),
+    ("Cuatotolapan", "Hueyapan de Ocampo"),
+    ("Los Mangos", "Hueyapan de Ocampo"),
+    ("Tecolapan", "Ángel R. Cabada"),
+    ("El Porvenir", "Ángel R. Cabada"),
+]
+
+
+def _coverage_text():
+    """Serializa la cobertura como "Localidad — Municipio" (una por línea)."""
+    return "\n".join(f"{locality} — {municipality}" for locality, municipality in COVERAGE_AREAS)
+
+
 # --- Configuración base (datos reales del negocio) ---------------------------
 BASE_SITE_CONFIG = {
     "email": "",
     "phone": "9211200027",
     "whatsapp": "9211200027",
     "address": "Minatitlán, Veracruz",
-    "coverage_zones": "Sur de Veracruz",
+    "coverage_zones": _coverage_text(),
     "hero_eyebrow": "Conectando tu mundo",
     "hero_title": "Internet sin",
     "hero_title_highlight": "límites.",
@@ -79,11 +158,10 @@ BASE_SITE_CONFIG = {
             "text": "Atención de ingeniería con seguimiento de tu caso.",
         },
     ],
-    # Cuenta real para transferencias. Falta confirmar el banco y el tipo de
-    # dato (CLABE de 18 dígitos o número de cuenta) para etiquetarlo bien.
+    # Cuenta real para transferencias (banco Revolut).
     "payment_instructions": (
-        "Cuenta: 64699040406103622. En tu transferencia usa la referencia que "
-        "te asignamos al registrar el pago."
+        "Revolut — Cuenta: 64699040406103622. En tu transferencia usa la "
+        "referencia que te asignamos al registrar el pago."
     ),
 }
 

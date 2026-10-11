@@ -31,7 +31,7 @@
       {% if config.phone %}<a href="tel:{{ config.phone }}">{{ config.phone }}</a>{% endif %}
       {% if config.whatsapp %}<a href="{{ config.whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
       {% if config.address %}<span>{{ config.address }}</span>{% endif %}
-      {% if config.zones_list %}<span>Cobertura: {{ config.zones_list|join:", " }}</span>{% endif %}
+      {% if config.coverage_count %}<a href="{% url 'core:home' %}#cobertura">{{ config.coverage_count }} localidades con cobertura</a>{% endif %}
     </div>
   </div>
 

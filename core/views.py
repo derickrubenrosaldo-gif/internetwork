@@ -90,7 +90,7 @@ class HomeView(TemplateView):
             "email": config.email,
             "telephone": config.phone,
             "address": {"@type": "PostalAddress", "streetAddress": config.address},
-            "areaServed": config.zones_list,
+            "areaServed": config.coverage_municipalities,
         }
 
 

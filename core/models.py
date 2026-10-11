@@ -108,8 +108,46 @@ class SiteConfig(models.Model):
         return cls.objects.get_or_create(pk=1)[0]
 
     @property
+    def coverage_list(self):
+        """Pares (localidad, municipio) del texto de cobertura.
+
+        Acepta una entrada por línea con el formato "Localidad — Municipio"
+        (también admite valores separados por comas y sin municipio).
+        """
+        areas = []
+        for raw in self.coverage_zones.replace(",", "\n").splitlines():
+            line = raw.strip()
+            if not line:
+                continue
+            if " — " in line:
+                locality, municipality = line.split(" — ", 1)
+            else:
+                locality, municipality = line, ""
+            areas.append((locality.strip(), municipality.strip()))
+        return areas
+
+    @property
     def zones_list(self):
-        return [z.strip() for z in self.coverage_zones.split(",") if z.strip()]
+        """Nombres de localidad cubiertas."""
+        return [locality for locality, _ in self.coverage_list]
+
+    @property
+    def coverage_municipalities(self):
+        """Municipios distintos cubiertos (para SEO y resúmenes)."""
+        return sorted({municipality for _, municipality in self.coverage_list if municipality})
+
+    @property
+    def coverage_grouped(self):
+        """Cobertura agrupada por municipio, en orden alfabético."""
+        groups = {}
+        for locality, municipality in self.coverage_list:
+            groups.setdefault(municipality or "Otras localidades", []).append(locality)
+        return [{"municipality": key, "localities": sorted(groups[key])} for key in sorted(groups)]
+
+    @property
+    def coverage_count(self):
+        """Número de localidades cubiertas."""
+        return len(self.coverage_list)
 
     @property
     def whatsapp_url(self):

@@ -1,0 +1,25 @@
+<!-- COBERTURA: localidades reales agrupadas por municipio -->
+{% if config.coverage_count %}
+<section class="coverage" id="cobertura" aria-label="Cobertura">
+  <div class="wrap">
+    <h2 class="reveal d1">¿Llegamos a tu zona? <span class="grad">Muy probablemente sí.</span></h2>
+    <p class="coverage-sub reveal d2">
+      {{ config.coverage_count }} localidades en {{ config.coverage_municipalities|length }} municipios del sur de Veracruz.
+      Si no ves la tuya, pregúntanos: seguimos ampliando la red.
+    </p>
+
+    <div class="coverage-grid reveal d2">
+      {% for group in config.coverage_grouped %}
+      <div class="coverage-group">
+        <h3>{{ group.municipality }}</h3>
+        <ul>
+          {% for locality in group.localities %}<li>{{ locality }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+
+    <a class="btn reveal d3" href="{% url 'core:home' %}#contacto">¿Llegan a mi zona?</a>
+  </div>
+</section>
+{% endif %}

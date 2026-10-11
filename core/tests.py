@@ -642,3 +642,29 @@ class SeedTests(BaseTestCase):
         call_command("seed_site", "--force", "--demo", stdout=StringIO())
         config = SiteConfig.get_solo()
         self.assertTrue(config.stats)  # cifras de ejemplo, solo con --demo
+
+
+class CoverageTests(BaseTestCase):
+    def test_coverage_is_parsed_and_grouped(self):
+        SiteConfig.objects.update(
+            coverage_zones=(
+                "Allende — Coatzacoalcos\nMapachapa — Minatitlán\nNanchital — Nanchital"
+            )
+        )
+        config = SiteConfig.get_solo()
+        self.assertEqual(config.coverage_count, 3)
+        self.assertEqual(config.zones_list, ["Allende", "Mapachapa", "Nanchital"])
+        self.assertEqual(
+            config.coverage_municipalities, ["Coatzacoalcos", "Minatitlán", "Nanchital"]
+        )
+        grouped = config.coverage_grouped
+        self.assertEqual(grouped[0]["municipality"], "Coatzacoalcos")
+        self.assertEqual(grouped[0]["localities"], ["Allende"])
+
+    def test_coverage_section_renders_with_real_localities(self):
+        SiteConfig.objects.update(coverage_zones="Mapachapa — Minatitlán")
+        response = self.client.get(reverse("core:home"))
+        self.assertContains(response, 'id="cobertura"')
+        self.assertContains(response, "Mapachapa")
+        self.assertContains(response, "Minatitlán")
+        self.assertContains(response, "¿Llegan a mi zona?")
