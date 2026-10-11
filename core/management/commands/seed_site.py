@@ -106,7 +106,7 @@ def _coverage_text():
 
 # --- Configuración base (datos reales del negocio) ---------------------------
 BASE_SITE_CONFIG = {
-    "email": "",
+    "email": "internetwork@gmail.com",
     "phone": "9211200027",
     "whatsapp": "9211200027",
     "address": "Minatitlán, Veracruz",

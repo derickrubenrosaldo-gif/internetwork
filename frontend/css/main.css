@@ -801,6 +801,9 @@ html.js .d3 { transition-delay: 0.36s; }
 .coverage-group ul { list-style: none; display: grid; gap: 6px; }
 .coverage-group li { color: var(--text); font-size: 0.9rem; }
 
+/* Marca con logo real */
+.brand img { display: block; height: 40px; width: auto; }
+
 /* ============================================================
    MENÚ PRINCIPAL (escritorio en línea, móvil desplegable)
    ============================================================ */
